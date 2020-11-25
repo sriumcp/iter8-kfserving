@@ -36,7 +36,7 @@ jobs:
         run:  |
           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
           kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-          kubectl wait --for=condition=Established crds --timeout=5m
+          kubectl wait --for=condition=Established crds --all --timeout=5m
         # sleep is the cheap version of CRD health check -- which doesn't seem to exist in k8s
       - name: Setup experiment and Inference Service
         run:  |
