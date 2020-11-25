@@ -1,8 +1,8 @@
 name: "Test iter8-kfserving handlers"
 on: [pull_request, push]
-
+# Note: https://github.community/t/whats-the-recommended-way-to-pass-a-docker-image-to-the-next-job-in-a-workflow/17225/14
 jobs:
-  iter8-kfserving-handler-scripts:
+  iter8-kfserving-build:
     runs-on: ubuntu-18.04
     services:
       registry:
@@ -24,27 +24,40 @@ jobs:
       - name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/iter8/iter8-kfserving:latest
-      - uses: actions/checkout@master
-      - uses: engineerd/setup-kind@v0.5.0
-        with:
-          image: kindest/node:v1.17.11
-      - name: Cluster Info
+  iter8-kfserving-test:
+    runs-on: ubuntu-18.04
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      - name: Check if the image still around
         run: |
-          kubectl cluster-info
-          echo "Present working directory: $(pwd)"
-      - name: Apply CRDs
-        run: |
-           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
-           kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-           kubectl get crds
-      - name: Setup experiment and Inference Service
-        run: |
-           kubectl create ns kfserving-test
-           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
-           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
-           export EXPERIMENT_NAME=sklearn-iris-experiment-1
-           export EXPERIMENT_NAMESPACE=kfserving-test
-           source handlers/scripts/start.sh
-           echo "Inference Service"
-           kubectl get inferenceservice/sklearn-iris -n kfserving-test
-           kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
+          docker image ls
+
+
+      # - uses: actions/checkout@master
+      # - uses: engineerd/setup-kind@v0.5.0
+      #   with:
+      #     image: kindest/node:v1.17.11
+      # - name: Cluster Info
+      #   run: |
+      #     kubectl cluster-info
+      #     echo "Present working directory: $(pwd)"
+      # - name: Apply CRDs
+      #   run: |
+      #      kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
+      #      kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
+      #      kubectl get crds
+      # - name: Setup experiment and Inference Service
+      #   run: |
+      #      kubectl create ns kfserving-test
+      #      kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+      #      kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+      #      export EXPERIMENT_NAME=sklearn-iris-experiment-1
+      #      export EXPERIMENT_NAMESPACE=kfserving-test
+      #      source handlers/scripts/start.sh
+      #      echo "Inference Service"
+      #      kubectl get inferenceservice/sklearn-iris -n kfserving-test
+      #      kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
