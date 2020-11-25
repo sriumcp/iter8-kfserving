@@ -48,16 +48,3 @@ jobs:
            echo "Inference Service"
            kubectl get inferenceservice/sklearn-iris -n kfserving-test
            kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
-
-
-name: ci
-
-on:
-  push:
-    branches: master
-
-jobs:
-  local-registry:
-    runs-on: ubuntu-latest
-           
-           
