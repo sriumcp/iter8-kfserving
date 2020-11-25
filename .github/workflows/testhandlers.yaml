@@ -47,7 +47,7 @@ jobs:
            kubectl create ns kfserving-test
            kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
            kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
-      - name: Create namespace and RBACs for start handler to run
+      # - name: Create namespace and RBACs for start handler to run
       - name: Fix and launch start handler 
            export EXPERIMENT_NAME=sklearn-iris-experiment-1
            export EXPERIMENT_NAMESPACE=kfserving-test
