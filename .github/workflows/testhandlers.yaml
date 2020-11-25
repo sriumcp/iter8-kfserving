@@ -58,6 +58,18 @@ jobs:
           cat ${START_HANDLER_FILE}
           echo "Creating start handler job ... "
           kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
+          sleep 30
+          echo ""
+          echo "Job report 1"
+          kubectl get job/start -n iter8-system -o yaml
+          sleep 30
+          echo ""
+          echo "Job report 2"
+          kubectl get job/start -n iter8-system -o yaml
+          sleep 30
+          echo ""
+          echo "Job report 3"
+          kubectl get job/start -n iter8-system -o yaml
           kubectl wait --for=condition=complete job/start -n iter8-system --timeout=60s
       - name: Check InferenceService and Experiment objects
         run: |
