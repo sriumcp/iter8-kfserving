@@ -64,7 +64,7 @@ jobs:
           cat ${START_HANDLER_FILE}
           echo "Creating start handler job ... "
           kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
-          kubectl wait --for=condition=complete job/ik-start -n iter8-system --timeout=60s
+          kubectl wait --for=condition=complete job/start -n iter8-system --timeout=60s
       - name: Check InferenceService and Experiment objects
         run: |
           echo "InferenceService object"
