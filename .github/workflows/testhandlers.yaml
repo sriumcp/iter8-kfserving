@@ -48,7 +48,8 @@ jobs:
            kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
            kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
       # - name: Create namespace and RBACs for start handler to run
-      - name: Fix and launch start handler 
+      - name: Fix and launch start handler
+        run: |
            export EXPERIMENT_NAME=sklearn-iris-experiment-1
            export EXPERIMENT_NAMESPACE=kfserving-test
            START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
@@ -59,6 +60,7 @@ jobs:
            cat ${START_HANDLER_FILE}
            kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
       - name: Check InferenceService and Experiment objects
+        run: |
            echo "InferenceService object"
            kubectl get inferenceservice/sklearn-iris -n kfserving-test
            echo "Experiment object"
