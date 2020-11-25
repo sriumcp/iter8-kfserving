@@ -27,6 +27,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: '3.0.0'
       - name: Build image
         run: docker build . --tag $IMAGE_NAME
       - uses: engineerd/setup-kind@v0.5.0
@@ -44,16 +47,16 @@ jobs:
           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
           kubectl create ns ${ITER8_SYSTEM_NAMESPACE}
-      # - name: Create namespace and RBACs for start handler to run
+          kustomize build tests/integration/rbacs | kubectl apply -f -
       - name: Fix and launch start handler
         run:  |
           export EXPERIMENT_NAME=sklearn-iris-experiment-1
           export EXPERIMENT_NAMESPACE=kfserving-test
-          START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
-          sed -i "s/ITER8_SYSTEM_NAMESPACE/${ITER8_SYSTEM_NAMESPACE}/g" ${START_HANDLER_FILE}
-          sed -i "s/YOUR_IMAGE/${IMAGE_NAME}/g" ${START_HANDLER_FILE}
-          sed -i "s/YOUR_EXPERIMENT_NAMESPACE/${EXPERIMENT_NAMESPACE}/g" ${START_HANDLER_FILE}
-          sed -i "s/YOUR_EXPERIMENT_NAME/${EXPERIMENT_NAME}/g" ${START_HANDLER_FILE}
+          export START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
+          sed -i -e "s/ITER8_SYSTEM_NAMESPACE/${ITER8_SYSTEM_NAMESPACE}/g" ${START_HANDLER_FILE}
+          sed -i -e "s/YOUR_IMAGE/${IMAGE_NAME}/g" ${START_HANDLER_FILE}
+          sed -i -e "s/YOUR_EXPERIMENT_NAMESPACE/${EXPERIMENT_NAMESPACE}/g" ${START_HANDLER_FILE}
+          sed -i -e "s/YOUR_EXPERIMENT_NAME/${EXPERIMENT_NAME}/g" ${START_HANDLER_FILE}
           echo "Fixed start handler"
           cat ${START_HANDLER_FILE}
           echo "Creating start handler job ... "

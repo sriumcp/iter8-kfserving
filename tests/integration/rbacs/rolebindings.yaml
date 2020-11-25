@@ -1,40 +1,27 @@
+# These role bindings will eventually come from etc3 repo
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: iter8-user-metrics
-  namespace: kfserving-test
+  name: iter8-jobs
+  namespace: iter8-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: job-handling
+subjects:
+- kind: ServiceAccount
+  name: iter8
+  namespace: iter8-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: iter8-system-metrics
+  namespace: iter8-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: metric-handling
-subjects:
-- kind: ServiceAccount
-  name: iter8
-  namespace: iter8-system
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: iter8-experiments
-  namespace: kfserving-test
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: experiment-handling
-subjects:
-- kind: ServiceAccount
-  name: iter8
-  namespace: iter8-system
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: iter8-inferenceservices
-  namespace: kfserving-test
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: inferenceservice-handling
 subjects:
 - kind: ServiceAccount
   name: iter8
