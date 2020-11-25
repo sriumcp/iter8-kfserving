@@ -16,8 +16,8 @@ name: Build-test-and-push
 on: [pull_request, push]
 
 env:
-  # TODO: Change variable to your image's name.
   IMAGE_NAME: iter8-kfserving
+  ITER8_SYSTEM_NAMESPACE: iter8-system
 
 jobs:
   # Run tests.
@@ -49,15 +49,17 @@ jobs:
            kubectl create ns kfserving-test
            kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
            kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+           kubectl create ns ${ITER8_SYSTEM_NAMESPACE}
       # - name: Create namespace and RBACs for start handler to run
       - name: Fix and launch start handler
         run: |
            export EXPERIMENT_NAME=sklearn-iris-experiment-1
            export EXPERIMENT_NAMESPACE=kfserving-test
            START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
-           sed -i 's/YOUR_IMAGE/${IMAGE_NAME}/g' ${START_HANDLER_FILE}
-           sed -i 's/YOUR_IMAGE/${EXPERIMENT_NAME}/g' ${START_HANDLER_FILE}
-           sed -i 's/YOUR_IMAGE/${EXPERIMENT_NAMESPACE}/g' ${START_HANDLER_FILE}
+           sed -i "s/ITER8_SYSTEM_NAMESPACE/${ITER8_SYSTEM_NAMESPACE}/g" ${START_HANDLER_FILE}
+           sed -i "s/YOUR_IMAGE/${IMAGE_NAME}/g" ${START_HANDLER_FILE}
+           sed -i "s/YOUR_EXPERIMENT_NAME/${EXPERIMENT_NAME}/g" ${START_HANDLER_FILE}
+           sed -i "s/YOUR_EXPERIMENT_NAMESPACE/${EXPERIMENT_NAMESPACE}/g" ${START_HANDLER_FILE}
            echo "Fixed start handler"
            cat ${START_HANDLER_FILE}
            kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
