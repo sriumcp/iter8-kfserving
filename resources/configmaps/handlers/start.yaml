@@ -6,15 +6,15 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: iter8-jobs
+      serviceAccountName: iter8
       containers:
       - name: ik-start
-        image: iter8/iter8-kfserving:latest
+        image: YOUR_IMAGE
         command: ["handlers/scripts/start.sh"]
         env:
         - name: EXPERIMENT_NAME
-          value: sklearn-iris-experiment-1
+          value: YOUR_EXPERIMENT_NAME
         - name: EXPERIMENT_NAMESPACE
-          value: kfserving-test
+          value: YOUR_EXPERIMENT_NAMESPACE
       restartPolicy: Never
   backoffLimit: 4
