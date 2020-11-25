@@ -28,47 +28,49 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build image
-        run: |
+        run:  |
           docker build . --tag $IMAGE_NAME
       - uses: engineerd/setup-kind@v0.5.0
         with:
-          image: kindest/node:v1.17.11
+          image:  kindest/node:v1.17.11
       - name: Print cluster info and pwd
-        run: |
+        run:  |
           kubectl cluster-info
           echo "Present working directory: $(pwd)"
       - name: Apply CRDs
-        run: |
-           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
-           kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-           kubectl get crds
-           sleep 10
+        run:  |
+          kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
+          kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
+          kubectl get crds
+          sleep 10
         # sleep is the cheap version of CRD health check -- which doesn't seem to exist in k8s
       - name: Setup experiment and Inference Service
-        run: |
-           kubectl create ns kfserving-test
-           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
-           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
-           kubectl create ns ${ITER8_SYSTEM_NAMESPACE}
+        run:  |
+          kubectl create ns kfserving-test
+          kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+          kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+          kubectl create ns ${ITER8_SYSTEM_NAMESPACE}
       # - name: Create namespace and RBACs for start handler to run
       - name: Fix and launch start handler
-        run: |
-           export EXPERIMENT_NAME=sklearn-iris-experiment-1
-           export EXPERIMENT_NAMESPACE=kfserving-test
-           START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
-           sed -i "s/ITER8_SYSTEM_NAMESPACE/${ITER8_SYSTEM_NAMESPACE}/g" ${START_HANDLER_FILE}
-           sed -i "s/YOUR_IMAGE/${IMAGE_NAME}/g" ${START_HANDLER_FILE}
-           sed -i "s/YOUR_EXPERIMENT_NAME/${EXPERIMENT_NAME}/g" ${START_HANDLER_FILE}
-           sed -i "s/YOUR_EXPERIMENT_NAMESPACE/${EXPERIMENT_NAMESPACE}/g" ${START_HANDLER_FILE}
-           echo "Fixed start handler"
-           cat ${START_HANDLER_FILE}
-           kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
+        run:  |
+          export EXPERIMENT_NAME=sklearn-iris-experiment-1
+          export EXPERIMENT_NAMESPACE=kfserving-test
+          START_HANDLER_FILE=resources/configmaps/handlers/start.yaml
+          sed -i "s/ITER8_SYSTEM_NAMESPACE/${ITER8_SYSTEM_NAMESPACE}/g" ${START_HANDLER_FILE}
+          sed -i "s/YOUR_IMAGE/${IMAGE_NAME}/g" ${START_HANDLER_FILE}
+          sed -i "s/YOUR_EXPERIMENT_NAMESPACE/${EXPERIMENT_NAMESPACE}/g" ${START_HANDLER_FILE}
+          sed -i "s/YOUR_EXPERIMENT_NAME/${EXPERIMENT_NAME}/g" ${START_HANDLER_FILE}
+          echo "Fixed start handler"
+          cat ${START_HANDLER_FILE}
+          echo "Creating start handler job ... "
+          kubectl apply -f resources/configmaps/handlers/start.yaml -n iter8-system
+          kubectl wait --for=condition=complete job/ik-start -n iter8-system --timeout=60s
       - name: Check InferenceService and Experiment objects
         run: |
-           echo "InferenceService object"
-           kubectl get inferenceservice/sklearn-iris -n kfserving-test
-           echo "Experiment object"
-           kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test          
+          echo "InferenceService object"
+          kubectl get inferenceservice/sklearn-iris -n kfserving-test
+          echo "Experiment object"
+          kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test -o yaml
 
   # # Push image to GitHub Packages.
   # # See also https://docs.docker.com/docker-hub/builds/
