@@ -1,63 +1,152 @@
-name: "Test iter8-kfserving handlers"
-on: [pull_request, push]
-# Note: https://github.community/t/whats-the-recommended-way-to-pass-a-docker-image-to-the-next-job-in-a-workflow/17225/14
+name: Build-test-and-push
+
+on:
+  push:
+    # Publish `main` as Docker `latest` image.
+    branches:
+      - main
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: iter8-kfserving
+
 jobs:
-  iter8-kfserving-build:
-    runs-on: ubuntu-18.04
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+  # Run tests.
+  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
+  test:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          driver-opts: network=host
-      - name: Build and push to local registry
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: localhost:5000/iter8/iter8-kfserving:latest
-      - name: Inspect
+      - uses: actions/checkout@v2
+      - name: Build image
         run: |
-          docker buildx imagetools inspect localhost:5000/iter8/iter8-kfserving:latest
-  iter8-kfserving-test:
-    runs-on: ubuntu-18.04
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-    steps:
-      - name: Check if the image still around
+          docker build . --tag $IMAGE_NAME
+      - uses: engineerd/setup-kind@v0.5.0
+        with:
+          image: kindest/node:v1.17.11
+      - name: Print cluster info and pwd
         run: |
-          docker image ls
+          kubectl cluster-info
+          echo "Present working directory: $(pwd)"
+      - name: Apply CRDs
+        run: |
+           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
+           kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
+           kubectl get crds
+      - name: Setup experiment and Inference Service
+        run: |
+           kubectl create ns kfserving-test
+           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+           export EXPERIMENT_NAME=sklearn-iris-experiment-1
+           export EXPERIMENT_NAMESPACE=kfserving-test
+           source handlers/scripts/start.sh
+           echo "Inference Service"
+           kubectl get inferenceservice/sklearn-iris -n kfserving-test
+           kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test          
+
+  # # Push image to GitHub Packages.
+  # # See also https://docs.docker.com/docker-hub/builds/
+  # push:
+  #   # Ensure test job passes before pushing image.
+  #   needs: test
+
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Build image
+  #       run: docker build . --file Dockerfile --tag $IMAGE_NAME
+
+  #     - name: Log into registry
+  #       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+  #     - name: Push image
+  #       run: |
+  #         IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+  #         # Change all uppercase to lowercase
+  #         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+  #         # Strip git ref prefix from version
+  #         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+  #         # Strip "v" prefix from tag name
+  #         [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+  #         # Use Docker `latest` tag convention
+  #         [ "$VERSION" == "main" ] && VERSION=latest
+  #         echo IMAGE_ID=$IMAGE_ID
+  #         echo VERSION=$VERSION
+  #         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+  #         docker push $IMAGE_ID:$VERSION
 
 
-      # - uses: actions/checkout@master
-      # - uses: engineerd/setup-kind@v0.5.0
-      #   with:
-      #     image: kindest/node:v1.17.11
-      # - name: Cluster Info
-      #   run: |
-      #     kubectl cluster-info
-      #     echo "Present working directory: $(pwd)"
-      # - name: Apply CRDs
-      #   run: |
-      #      kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
-      #      kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-      #      kubectl get crds
-      # - name: Setup experiment and Inference Service
-      #   run: |
-      #      kubectl create ns kfserving-test
-      #      kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
-      #      kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
-      #      export EXPERIMENT_NAME=sklearn-iris-experiment-1
-      #      export EXPERIMENT_NAMESPACE=kfserving-test
-      #      source handlers/scripts/start.sh
-      #      echo "Inference Service"
-      #      kubectl get inferenceservice/sklearn-iris -n kfserving-test
-      #      kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
+# name: "Test iter8-kfserving handlers"
+# on: [pull_request, push]
+# # Note: https://github.community/t/whats-the-recommended-way-to-pass-a-docker-image-to-the-next-job-in-a-workflow/17225/14
+# jobs:
+#   iter8-kfserving-build:
+#     runs-on: ubuntu-18.04
+#     services:
+#       registry:
+#         image: registry:2
+#         ports:
+#           - 5000:5000
+#     steps:
+#       - name: Set up QEMU
+#         uses: docker/setup-qemu-action@v1
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v1
+#         with:
+#           driver-opts: network=host
+#       - name: Build and push to local registry
+#         uses: docker/build-push-action@v2
+#         with:
+#           push: true
+#           tags: localhost:5000/iter8/iter8-kfserving:latest
+#       - name: Inspect
+#         run: |
+#           docker buildx imagetools inspect localhost:5000/iter8/iter8-kfserving:latest
+#   iter8-kfserving-test:
+#     runs-on: ubuntu-18.04
+#     services:
+#       registry:
+#         image: registry:2
+#         ports:
+#           - 5000:5000
+#     steps:
+#       - name: Check if the image still around
+#         run: |
+#           docker image ls
+
+
+#       # - uses: actions/checkout@master
+#       # - uses: engineerd/setup-kind@v0.5.0
+#       #   with:
+#       #     image: kindest/node:v1.17.11
+#       # - name: Cluster Info
+#       #   run: |
+#       #     kubectl cluster-info
+#       #     echo "Present working directory: $(pwd)"
+#       # - name: Apply CRDs
+#       #   run: |
+#       #      kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
+#       #      kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
+#       #      kubectl get crds
+#       # - name: Setup experiment and Inference Service
+#       #   run: |
+#       #      kubectl create ns kfserving-test
+#       #      kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+#       #      kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+#       #      export EXPERIMENT_NAME=sklearn-iris-experiment-1
+#       #      export EXPERIMENT_NAMESPACE=kfserving-test
+#       #      source handlers/scripts/start.sh
+#       #      echo "Inference Service"
+#       #      kubectl get inferenceservice/sklearn-iris -n kfserving-test
+#       #      kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
