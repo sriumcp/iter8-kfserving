@@ -1,4 +1,4 @@
-name: "test iter8-kfserving handlers"
+name: "Test iter8-kfserving handlers"
 on: [pull_request, push]
 
 jobs:
@@ -13,3 +13,10 @@ jobs:
           kubectl get pods -n kube-system
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
+          ls
+          pwd
+      - name: Apply CRDs
+        run: |
+           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
+           kubectl get crds
+        
