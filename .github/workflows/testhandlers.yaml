@@ -15,4 +15,16 @@ jobs:
         run: |
            kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
            kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-           kubectl get crds        
+           kubectl get crds
+      - name: Setup experiment and Inference Service
+        run: |
+           kubectl create ns kfserving-test
+           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+           export EXPERIMENT_NAME=sklearn-iris-experiment-1
+           export EXPERIMENT_NAMESPACE=kfserving-test
+           source handlers/scripts/start.sh
+           echo "Inference Service"
+           kubectl get inferenceservice/sklearn-iris -n kfserving-test
+           kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
+           
