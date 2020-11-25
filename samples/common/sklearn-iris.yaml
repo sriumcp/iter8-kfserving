@@ -7,7 +7,7 @@ spec:
     predictor:
       tensorflow:
         storageUri: gs://kfserving-samples/models/tensorflow/flowers
-  canaryTrafficPercent: 50 
+  canaryTrafficPercent: 0
   canary:
     predictor:
       tensorflow:
