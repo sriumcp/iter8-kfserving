@@ -2,19 +2,19 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: start
-  namespace: ITER8_SYSTEM_NAMESPACE
 spec:
   template:
     spec:
       serviceAccountName: iter8
       containers:
       - name: ik-start
-        image: YOUR_IMAGE
+        image: iter8/iter8-kfserving:latest
         command: ["handlers/scripts/start.sh"]
         env:
-        - name: EXPERIMENT_NAME
-          value: YOUR_EXPERIMENT_NAME
         - name: EXPERIMENT_NAMESPACE
-          value: YOUR_EXPERIMENT_NAMESPACE
+          value: EXPERIMENT_NAMESPACE_VALUE
+        - name: EXPERIMENT_NAME
+          value: EXPERIMENT_NAME_VALUE
       restartPolicy: Never
   backoffLimit: 4
+  activeDeadlineSeconds: 60
