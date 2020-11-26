@@ -15,6 +15,7 @@ spec:
               value: kfserving-test
             - name: EXPERIMENT_NAME
               value: sklearn-iris-experiment-1
+          imagePullPolicy: Never
       restartPolicy: Never
   backoffLimit: 4
-  activeDeadlineSeconds: 60
+  activeDeadlineSeconds: 300

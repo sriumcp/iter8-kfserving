@@ -50,6 +50,8 @@ jobs:
         run: |
           cp resources/configmaps/handlers/start.yaml tests/integration/handlers/start.yaml
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].image iter8-kfserving
+          # On minikube:
+          # yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[0].value kfserving-test
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[1].value sklearn-iris-experiment-1
           echo "Fixed start handler"
