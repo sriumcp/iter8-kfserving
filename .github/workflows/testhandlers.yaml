@@ -45,7 +45,7 @@ jobs:
           kubectl create ns iter8-system
           kustomize build tests/rbacs | kubectl apply -f -
       - name: Get yq
-        run: snap install yq
+        run: sudo snap install yq
       - name: Fix and launch start handler
         run: |
           cp resources/configmaps/handlers/start.yaml tests/integration/handlers/start.yaml
