@@ -53,4 +53,11 @@ echo "Checking InferenceService and Experiment objects"
 echo "InferenceService object"
 kubectl get inferenceservice/sklearn-iris -n kfserving-test
 echo "Experiment object"
-kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test -o yaml
+VERSION_INFO=$(kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test -o yaml | yq r - spec.versionInfo)
+
+if [[ -z ${VERSION_INFO} ]]; then
+    echo "No version information found after start handler finished"
+    exit 1
+fi
+
+echo "Experiment object patched with version information"
