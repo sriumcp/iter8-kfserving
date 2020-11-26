@@ -43,7 +43,7 @@ jobs:
           kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
           kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
           kubectl create ns iter8-system
-          kustomize build tests/integration/rbacs | kubectl apply -f -
+          kustomize build tests/rbacs | kubectl apply -f -
       - name: Get yq
         run: snap install yq
       - name: Fix and launch start handler

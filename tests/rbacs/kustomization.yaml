@@ -2,4 +2,4 @@ resources:
   - serviceaccounts.yaml
   - clusterroles.yaml
   - rolebindings.yaml
-  - ../../../install/rbac/
+  - ../../install/rbac/
