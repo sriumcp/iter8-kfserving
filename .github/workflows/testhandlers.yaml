@@ -34,7 +34,8 @@ jobs:
       - name: Apply CRDs
         run: |
           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
-          kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
+          # super ugly and needs to be replaced
+          kubectl apply -f tests/integration/inferenceservicecrd.yaml
           kubectl wait --for=condition=Established crds --all --timeout=5m
         # sleep is the cheap version of CRD health check -- which doesn't seem to exist in k8s
       - name: Setup experiment and Inference Service
@@ -54,6 +55,9 @@ jobs:
           # yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[0].value kfserving-test
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[1].value sklearn-iris-experiment-1
+          yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[2].name IGNORE_INFERENCESERVICE_READINESS
+          yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[2].value ignore
+
           echo "Fixed start handler"
           cat tests/integration/handlers/start.yaml
           echo "Creating start handler job ... "

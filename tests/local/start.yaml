@@ -15,6 +15,8 @@ spec:
               value: kfserving-test
             - name: EXPERIMENT_NAME
               value: sklearn-iris-experiment-1
+            - name: IGNORE_INFERENCESERVICE_READINESS
+              value: ignore
           imagePullPolicy: Never
       restartPolicy: Never
   backoffLimit: 4

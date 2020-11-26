@@ -69,8 +69,10 @@ if [[ -z ${INFERENCE_SERVICE_EXISTS} ]]; then
 fi
 
 # Step 4: Ensure InferenceService object is ready.
-echo "Ensuring InferenceService object is ready. Will give up after 120 seconds ..."
-# kubectl wait --for=condition=ready inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} --timeout=120s
+if [[ -z ${IGNORE_INFERENCESERVICE_READINESS} ]]; then
+    echo "Ensuring InferenceService object is ready. Will give up after 120 seconds ..."
+    kubectl wait --for=condition=ready inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} --timeout=120s
+fi
 
 # Step 5: Get the InferenceService object.
 kubectl get inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} -o yaml > ${RESOURCE_DIR}/inferenceservice.yaml
@@ -83,7 +85,7 @@ if [[ ${STRATEGY} == "performance" ]]; then
     PATCH_FILE=${RESOURCE_DIR}/start/performancepatch.yaml
 else
     # Step 6.b.i: Patch the InferenceService object with 0 traffic to canary.
-    echo "Patching InferenceService object using command: kubectl patch inferenceservice sklearn-iris -n kfserving-test -p '{\"spec\": {\"canaryTrafficPercent\": 0}}' --type=merge ..."
+    echo "Patching InferenceService object using command: kubectl patch inferenceservice sklearn-iris -n kfserving-test -p '{\"spec\": {\"canaryTrafficPercent\": 0}}' ..."
 
     kubectl patch inferenceservice sklearn-iris -n kfserving-test -p '{"spec": {"canaryTrafficPercent": 0}}' --type=merge
 
