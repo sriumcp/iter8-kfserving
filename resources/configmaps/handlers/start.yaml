@@ -8,7 +8,7 @@ spec:
       serviceAccountName: iter8
       containers:
       - name: ik-start
-        image: iter8/iter8-kfserving:latest
+        image: docker.pkg.github.com/iter8-tools/iter8-kfserving/handlers:latest
         command: ["handlers/scripts/start.sh"]
         env:
         - name: EXPERIMENT_NAMESPACE

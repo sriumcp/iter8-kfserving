@@ -1,19 +1,21 @@
 name: Build-test-and-docker-push
 
-# on:
-#   push:
-#     # Publish `main` as Docker `latest` image.
-#     branches:
-#       - main
+on:
+  push:
+    # Publish `main` as Docker `latest` image.
+    branches:
+      - main
 
-#     # Publish `v1.2.3` tags as releases.
-#     tags:
-#       - v*
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
 
-#   # Run tests for any PRs.
-#   pull_request:
+  # Run tests for any PRs.
+  pull_request:
 
-on: [pull_request, push]
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: handlers
 
 jobs:
   build-and-test:
@@ -21,17 +23,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      # - name: Setup Minikube
-      #   uses: manusa/actions-setup-minikube@v2.0.1
-      #   with:
-      #     minikube version: 'v1.15.1'
-      #     kubernetes version: 'v1.17.11'
-      #     github token: ${{ secrets.GITHUB_TOKEN }}
-      # - run: tests/integration/teststarthandler.sh
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.0.1
+        with:
+          minikube version: 'v1.15.1'
+          kubernetes version: 'v1.17.11'
+          github token: ${{ secrets.GITHUB_TOKEN }}
+      - run: tests/integration/teststarthandler.sh
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
-  docker-push:
+  build-and-push:
     # Ensure test job passes before pushing image.
     needs: build-and-test
 
@@ -39,52 +41,32 @@ jobs:
     if: github.event_name == 'push'
 
     steps:
-      # familiarizing with context
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "$RUNNER_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-        run: echo "$STRATEGY_CONTEXT"
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
+      - uses: actions/checkout@v2
 
-      # Actual steps
-      # - uses: actions/checkout@v2
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
-      # - name: Build image
-      #   run: docker build . --file Dockerfile --tag $IMAGE_NAME
-
-      # - name: Log into registry
-      #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push image
         run: |
-          IMAGE_NAME=iter8-kfserving
-          IMAGE_ID=iter8/$IMAGE_NAME
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
+
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          # docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          # docker push $IMAGE_ID:$VERSION
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION

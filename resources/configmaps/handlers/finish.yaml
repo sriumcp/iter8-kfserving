@@ -2,19 +2,19 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: finish
-  namespace: iter8-system
 spec:
   template:
     spec:
       serviceAccountName: iter8
       containers:
       - name: ik-finish
-        image: YOUR_IMAGE
+        image: docker.pkg.github.com/iter8-tools/iter8-kfserving/handlers:latest
         command: ["handlers/scripts/finish.sh"]
         env:
-        - name: EXPERIMENT_NAME
-          value: YOUR_EXPERIMENT_NAME
         - name: EXPERIMENT_NAMESPACE
-          value: YOUR_EXPERIMENT_NAMESPACE
+          value: EXPERIMENT_NAMESPACE_VALUE
+        - name: EXPERIMENT_NAME
+          value: EXPERIMENT_NAME_VALUE
       restartPolicy: Never
   backoffLimit: 4
+  activeDeadlineSeconds: 300

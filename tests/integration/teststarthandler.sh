@@ -10,7 +10,11 @@ echo "Ensuring minikube can access local docker image"
 eval $(minikube docker-env)
 
 echo "Building image"
-DOCKER_BUILDKIT=1 docker build . --tag iter8-kfserving
+# Setting image name
+if [[ -z ${IMAGE_NAME} ]]; then 
+    IMAGE_NAME="handlers"
+fi
+DOCKER_BUILDKIT=1 docker build . --tag ${IMAGE_NAME}
 
 echo "Applying CRDs"
 kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
@@ -35,7 +39,7 @@ fi
 
 echo "Fixing and launching start handler"       
 cp resources/configmaps/handlers/start.yaml tests/integration/handlers/start.yaml
-yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].image iter8-kfserving
+yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].image ${IMAGE_NAME}
 yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
 yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[0].value kfserving-test
 yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[1].value sklearn-iris-experiment-1
