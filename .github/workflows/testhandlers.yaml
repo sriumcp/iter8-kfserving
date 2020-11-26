@@ -23,16 +23,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: imranismail/setup-kustomize@v1
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.0.1
         with:
-          kustomize-version: "3.1.0"
-      - uses: opsgang/ga-setup-minikube@v0.1.1
-        with:
-          minikube-version: 1.15.1
-          k8s-version: 1.17.11
-      - name: Starting minikube cluster
-        run: |
-          minikube start --memory=12000 --cpus=4 --kubernetes-version=v1.17.11 --driver=docker
+          minikube version: 'v1.15.1'
+          kubernetes version: 'v1.17.11'
+          github token: ${{ secrets.GITHUB_TOKEN }}      
+      # - uses: imranismail/setup-kustomize@v1
+      #   with:
+      #     kustomize-version: "3.1.0"
+      # - uses: opsgang/ga-setup-minikube@v0.1.1
+      #   with:
+      #     minikube-version: 1.15.1
+      #     k8s-version: 1.17.11
+      # - name: Starting minikube cluster
+      #   run: |
+      #     minikube start --memory=12000 --cpus=4 --kubernetes-version=v1.17.11 --driver=docker
       # - uses: engineerd/setup-kind@v0.5.0
       #   with:
       #     image: kindest/node:v1.17.11
