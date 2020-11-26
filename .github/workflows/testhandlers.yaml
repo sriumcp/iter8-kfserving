@@ -45,7 +45,6 @@ jobs:
           # super ugly and needs to be replaced
           kubectl apply -f tests/integration/inferenceservicecrd.yaml
           kubectl wait --for=condition=Established crds --all --timeout=5m
-        # sleep is the cheap version of CRD health check -- which doesn't seem to exist in k8s
       - name: Setup experiment and Inference Service
         run: |
           kubectl create ns kfserving-test
@@ -59,8 +58,7 @@ jobs:
         run: |
           cp resources/configmaps/handlers/start.yaml tests/integration/handlers/start.yaml
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].image iter8-kfserving
-          # On minikube:
-          # yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
+          yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[0].value kfserving-test
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[1].value sklearn-iris-experiment-1
           yq w -i tests/integration/handlers/start.yaml spec.template.spec.containers[0].env[2].name IGNORE_INFERENCESERVICE_READINESS
