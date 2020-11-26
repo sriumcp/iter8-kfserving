@@ -29,7 +29,8 @@ jobs:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
           github token: ${{ secrets.GITHUB_TOKEN }}
-          start args: --memory=6954 --cpus=4 --driver=docker   
+          start args: --cpus=4
+          driver: docker
       # - uses: imranismail/setup-kustomize@v1
       #   with:
       #     kustomize-version: "3.1.0"
