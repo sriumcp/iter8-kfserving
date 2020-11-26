@@ -29,19 +29,6 @@ jobs:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
           github token: ${{ secrets.GITHUB_TOKEN }}
-      # - uses: imranismail/setup-kustomize@v1
-      #   with:
-      #     kustomize-version: "3.1.0"
-      # - uses: opsgang/ga-setup-minikube@v0.1.1
-      #   with:
-      #     minikube-version: 1.15.1
-      #     k8s-version: 1.17.11
-      # - name: Starting minikube cluster
-      #   run: |
-      #     minikube start --memory=12000 --cpus=4 --kubernetes-version=v1.17.11 --driver=docker
-      # - uses: engineerd/setup-kind@v0.5.0
-      #   with:
-      #     image: kindest/node:v1.17.11
       - run: eval $(minikube docker-env)
       - name: Build image
         run: DOCKER_BUILDKIT=1 docker build . --tag iter8-kfserving
@@ -120,68 +107,3 @@ jobs:
   #         echo VERSION=$VERSION
   #         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
   #         docker push $IMAGE_ID:$VERSION
-
-
-# name: "Test iter8-kfserving handlers"
-# on: [pull_request, push]
-# # Note: https://github.community/t/whats-the-recommended-way-to-pass-a-docker-image-to-the-next-job-in-a-workflow/17225/14
-# jobs:
-#   iter8-kfserving-build:
-#     runs-on: ubuntu-18.04
-#     services:
-#       registry:
-#         image: registry:2
-#         ports:
-#           - 5000:5000
-#     steps:
-#       - name: Set up QEMU
-#         uses: docker/setup-qemu-action@v1
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v1
-#         with:
-#           driver-opts: network=host
-#       - name: Build and push to local registry
-#         uses: docker/build-push-action@v2
-#         with:
-#           push: true
-#           tags: localhost:5000/iter8/iter8-kfserving:latest
-#       - name: Inspect
-#         run: |
-#           docker buildx imagetools inspect localhost:5000/iter8/iter8-kfserving:latest
-#   iter8-kfserving-test:
-#     runs-on: ubuntu-18.04
-#     services:
-#       registry:
-#         image: registry:2
-#         ports:
-#           - 5000:5000
-#     steps:
-#       - name: Check if the image still around
-#         run: |
-#           docker image ls
-
-
-#       # - uses: actions/checkout@master
-#       # - uses: engineerd/setup-kind@v0.5.0
-#       #   with:
-#       #     image: kindest/node:v1.17.11
-#       # - name: Cluster Info
-#       #   run: |
-#       #     kubectl cluster-info
-#       #     echo "Present working directory: $(pwd)"
-#       # - name: Apply CRDs
-#       #   run: |
-#       #      kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
-#       #      kubectl apply -f https://raw.githubusercontent.com/kubeflow/kfserving/master/config/crd/serving.kubeflow.org_inferenceservices.yaml
-#       #      kubectl get crds
-#       # - name: Setup experiment and Inference Service
-#       #   run: |
-#       #      kubectl create ns kfserving-test
-#       #      kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
-#       #      kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
-#       #      export EXPERIMENT_NAME=sklearn-iris-experiment-1
-#       #      export EXPERIMENT_NAMESPACE=kfserving-test
-#       #      source handlers/scripts/start.sh
-#       #      echo "Inference Service"
-#       #      kubectl get inferenceservice/sklearn-iris -n kfserving-test
-#       #      kubectl get experiment/sklearn-iris-experiment-1 -n kfserving-test
