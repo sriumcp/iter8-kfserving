@@ -26,11 +26,19 @@ jobs:
       - uses: imranismail/setup-kustomize@v1
         with:
           kustomize-version: "3.1.0"
+      - uses: opsgang/ga-setup-minikube@v0.1.1
+        with:
+          minikube-version: 1.15.1
+          k8s-version: 1.17.11
+      - name: Starting minikube cluster
+        run: |
+          minikube start --memory=12000 --cpus=4 --kubernetes-version=v1.17.11 --driver=docker
+      # - uses: engineerd/setup-kind@v0.5.0
+      #   with:
+      #     image: kindest/node:v1.17.11
+      - run: eval $(minikube docker-env)
       - name: Build image
         run: docker build . --tag iter8-kfserving
-      - uses: engineerd/setup-kind@v0.5.0
-        with:
-          image: kindest/node:v1.17.11
       - name: Apply CRDs
         run: |
           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
@@ -67,7 +75,7 @@ jobs:
           echo ""
           echo "Job logs"
           kubectl logs --selector job-name=start -n iter8-system
-          kubectl wait --for=condition=complete job/start -n iter8-system --timeout=60s
+          kubectl wait --for=condition=complete job/start -n iter8-system --timeout=30s
       - name: Check InferenceService and Experiment objects
         run: |
           echo "InferenceService object"
