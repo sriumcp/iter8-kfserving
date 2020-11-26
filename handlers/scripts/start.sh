@@ -70,7 +70,7 @@ fi
 
 # Step 4: Ensure InferenceService object is ready.
 echo "Ensuring InferenceService object is ready. Will give up after 120 seconds ..."
-kubectl wait --for=condition=ready inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} --timeout=120s
+# kubectl wait --for=condition=ready inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} --timeout=120s
 
 # Step 5: Get the InferenceService object.
 kubectl get inferenceservice ${INFERENCE_SERVICE_NAME} -n ${INFERENCE_SERVICE_NAMESPACE} -o yaml > ${RESOURCE_DIR}/inferenceservice.yaml
