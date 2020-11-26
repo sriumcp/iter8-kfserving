@@ -45,7 +45,7 @@ jobs:
       #     image: kindest/node:v1.17.11
       - run: eval $(minikube docker-env)
       - name: Build image
-        run: docker build . --tag iter8-kfserving
+        run: DOCKER_BUILDKIT=1 docker build . --tag iter8-kfserving
       - name: Apply CRDs
         run: |
           kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
