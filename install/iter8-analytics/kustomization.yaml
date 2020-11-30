@@ -1,0 +1,9 @@
+resources:
+- github.com/sriumcp/iter8-analytics/install/kubernetes/kustomize?ref=actions
+
+configMapGenerator:
+- name: iter8-analytics
+  files:
+  - config.yaml
+generatorOptions:
+  disableNameSuffixHash: true  

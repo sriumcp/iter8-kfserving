@@ -9,4 +9,4 @@ spec:
           kind: InferenceService
           name: INFERENCE_SERVICE_NAME
           namespace: INFERENCE_SERVICE_NAMESPACE
-          fieldPath: spec.canaryTrafficPercent
+          fieldPath: spec/canaryTrafficPercent
