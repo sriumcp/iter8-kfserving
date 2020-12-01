@@ -13,10 +13,6 @@ on:
   # Run tests for any PRs.
   pull_request:
 
-env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: handlers
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -31,42 +27,42 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
       - run: tests/integration/teststarthandler.sh
 
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   build-and-push:
     # Ensure test job passes before pushing image.
     needs: build-and-test
 
     runs-on: ubuntu-latest
+
     if: github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
-
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Push image
-        run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - uses: actions/checkout@v2
+    - uses: docker/setup-buildx-action@v1
+    - uses: docker/login-action@v1
+      with:
+        # registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_SECRET }}
+    - name: Get version
+      run: |
+        tarref=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Strip "v" prefix from tagref
+        if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+          echo "VERSION=$(echo $tarref | sed -e 's/^v//')" >> $GITHUB_ENV
+        elif [[ "${{ github.ref }}" == *"main" ]]; then
+          echo "VERSION=latest" >> $GITHUB_ENV
+        fi
+    - name: Get owner and repo
+      run: |
+        ownerrepo=${{ github.repository }}
+        owner=$(echo $ownerrepo | cut -f1 -d/)
+        if [[ "$owner" == "iter8-tools" ]]; then
+          owner=iter8
+        fi
+        echo "OWNER=$owner" >> $GITHUB_ENV
+        echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
+    - uses: docker/build-push-action@v2
+      with:
+        context: .
+        tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
+        push: true
