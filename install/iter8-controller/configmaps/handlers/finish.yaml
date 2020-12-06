@@ -9,7 +9,7 @@ spec:
       containers:
       - name: ik-finish
         image: iter8/iter8-kfserving:latest
-        command: ["handlers/scripts/finish.sh"]
+        command: ["handlers/finish.sh"]
         env:
         - name: EXPERIMENT_NAMESPACE
           value: EXPERIMENT_NAMESPACE_VALUE

@@ -24,8 +24,18 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-          github token: ${{ secrets.GITHUB_TOKEN }}
       - run: tests/integration/teststarthandler.sh
+      - run: tests/integration/cleanupstart.sh
+      - run: tests/integration/testfinishhandler.sh
+      - run: tests/integration/cleanupfinish.sh
+      - run: |
+        kustomize build install > build.yaml
+        if cmp -s build.yaml install/iter8-kfserving.yaml; then
+            printf 'install/iter8-kfserving is the latest yaml install file.'
+        else
+            printf 'install/iter8-kfserving does not appear to be the latest yaml install file.'
+            exit 1
+        fi
 
   build-and-push:
     # Ensure test job passes before pushing image.

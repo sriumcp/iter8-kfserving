@@ -3,18 +3,25 @@ set -e
 
 # Note: This is an idempotent handler. Executing it 'n' times successfully will produce the same result as executing it once successfully. This is a useful guarantee.
 
+# Environment variables.
+## RESOURCE_DIR: Directory used for storing intermediate objects. Used as scratch space.
+## EXPERIMENT_NAME: Name of the Experiment object.
+## EXPERIMENT_NAMESPACE: Namespace of the Experiment object.
+## IGNORE_INFERENCESERVICE_READINESS: Boolean flag indicating if this script needs to wait for InferenceService object to be ready or not. Step 4 is skipped if this flag is set.
+
 # Plan of action.
-## Step 0: Get the root directory.
+## Step 0: Set and mkdir RESOURCE_DIR.
 ## Step 1: Get the Experiment object.
 ## Step 2: Get namespace and name for InferenceService object.
 ## Step 3: Get the InferenceService object.
 ## Step 4: Find the recommended baseline.
 ## Step 5: If there is no canary in InferenceService object, do nothing. Else, replace spec.default with spec.canary and/or remove spec.canary in InferenceService object.
 
-# Step 0: Get the root directory.
+# Step 0: Set and mkdir RESOURCE_DIR.
 if [[ -z ${RESOURCE_DIR+x} ]]; then
-    RESOURCE_DIR="./resources/experiment"
+    RESOURCE_DIR="./resources"
 fi
+mkdir -p ${RESOURCE_DIR}
 echo "RESOURCE_DIR=${RESOURCE_DIR}"
 
 # Step 1: Get the Experiment object.
@@ -83,28 +90,28 @@ fi
 # Step 5: If there is no canary in InferenceService object, do nothing. Else, replace spec.default with spec.canary and/or remove spec.canary in InferenceService object.
 CANARY=$(yq r ${RESOURCE_DIR}/inferenceservice.yaml spec.canary) 
 if [[ -n ${CANARY} ]]; then 
-    # Remove canaryTrafficPercent field from the local InferenceService object
-    echo "Removing spec.canaryTrafficPercent ..."
-    yq d -i ${RESOURCE_DIR}/inferenceservice.yaml spec.canaryTrafficPercent
-
-    if [[ ${RECOMMENDED_BASELINE} == "default" ]]; then
-        # New default = old default. Remove spec.canary (after if-else-fi statement.)
-        echo "Removing spec.canary ..."
-    else
+    if [[ ${RECOMMENDED_BASELINE} == "canary" ]]; then
         # New default = old canary. Store the old canary value and replace default with it.
         # Remove spec.canary (after if-else-fi statement.)
-        echo "Replacing spec.default with spec.canary and removing spec.canary ..."
+        echo "Replacing spec.default with spec.canary"
 
         # Create a temp file to store canary as the new default
         yq r ${RESOURCE_DIR}/inferenceservice.yaml spec.canary > ${RESOURCE_DIR}/newbaselinedata.yaml
         # Prefix the yaml in this temp yaml file with spec.default
         yq p -i ${RESOURCE_DIR}/newbaselinedata.yaml spec.default
         # Overwrite default with the new default in the local InferenceService object
-        yq m -x ${RESOURCE_DIR}/inferenceservice.yaml ${RESOURCE_DIR}/newbaselinedata.yaml
+        yq m -x -i ${RESOURCE_DIR}/inferenceservice.yaml ${RESOURCE_DIR}/newbaselinedata.yaml
     fi
-    # Removing spec.canary here
+    # Remove canaryTrafficPercent field from the local InferenceService object
+    echo "Removing spec.canaryTrafficPercent ..."
+    yq d -i ${RESOURCE_DIR}/inferenceservice.yaml spec.canaryTrafficPercent
+
+    echo "Removing spec.canary ..."
     yq d -i ${RESOURCE_DIR}/inferenceservice.yaml spec.canary
 
+    echo "Current InferenceService object"
+    cat ${RESOURCE_DIR}/inferenceservice.yaml
+
     # Replace InferenceService object with local version
-    kubectl replace -f ${RESOURCE_DIR}/inferenceservice.yaml
+    kubectl replace -f ${RESOURCE_DIR}/inferenceservice.yaml -n ${INFERENCE_SERVICE_NAMESPACE}
 fi

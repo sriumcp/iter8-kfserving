@@ -2,6 +2,4 @@
 
 .vscode
 
-resources/experiment/inferenceservice.yaml
-resources/experiment/experiment.yaml
-resources/experiment/newbaselinedata.yaml
+# ./resources

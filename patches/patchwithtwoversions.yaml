@@ -7,6 +7,6 @@ spec:
         weightObjRef:
           apiVersion: serving.kubeflow.org/v1alpha2
           kind: InferenceService
-          name: INFERENCE_SERVICE_NAME
-          namespace: INFERENCE_SERVICE_NAMESPACE
+          name: sklearn-iris
+          namespace: kfserving-test
           fieldPath: /spec/canaryTrafficPercent

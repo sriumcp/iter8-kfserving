@@ -23,4 +23,4 @@ WORKDIR /
 
 # Copy folders needed by handler scripts
 COPY ./handlers /handlers
-COPY ./resources /resources
+COPY ./patches /patches
