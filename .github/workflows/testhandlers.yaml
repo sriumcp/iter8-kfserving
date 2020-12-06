@@ -33,14 +33,7 @@ jobs:
       - run: tests/integration/cleanupstart.sh
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
-      - run: |
-        kustomize build install/ > build.yaml; 
-        if cmp build.yaml install/iter8-kfserving.yaml; then
-            echo 'install/iter8-kfserving is the latest yaml install file.'
-        else
-            echo 'install/iter8-kfserving does not appear to be the latest yaml install file.'
-            exit 1
-        fi
+      - run: tests/install/checkinstall.sh        
 
   build-and-push:
     # Ensure test job passes before pushing image.
