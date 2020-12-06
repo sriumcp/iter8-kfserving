@@ -34,11 +34,11 @@ jobs:
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
       - run: |
-        kustomize build install > build.yaml
-        if cmp -s build.yaml install/iter8-kfserving.yaml; then
-            printf 'install/iter8-kfserving is the latest yaml install file.'
+        kustomize build install/ > build.yaml; 
+        if cmp build.yaml install/iter8-kfserving.yaml; then
+            echo 'install/iter8-kfserving is the latest yaml install file.'
         else
-            printf 'install/iter8-kfserving does not appear to be the latest yaml install file.'
+            echo 'install/iter8-kfserving does not appear to be the latest yaml install file.'
             exit 1
         fi
 
