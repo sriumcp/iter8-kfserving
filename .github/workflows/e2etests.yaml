@@ -36,9 +36,25 @@ jobs:
       - run: tests/install/checkinstallyaml.sh        
       - run: tests/install/checkquickstart.sh 
 
+  build-and-test-install:
+      - uses: actions/checkout@v2
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.0.1
+        with:
+          minikube version: 'v1.15.1'
+          kubernetes version: 'v1.17.11'
+      - name: Run Kubernetes tools
+        uses: stefanprodan/kube-tools@v1
+        with:
+          kubectl: 1.18.2
+          kustomize: 3.5.5      
+      - run: tests/install/checkquickstart.sh 
+
   build-and-push:
     # Ensure test job passes before pushing image.
-    needs: build-and-test
+    needs: 
+    - build-and-test
+    - build-and-test-install
 
     runs-on: ubuntu-latest
 
