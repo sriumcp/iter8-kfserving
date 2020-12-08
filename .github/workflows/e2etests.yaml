@@ -43,11 +43,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.0.1
-        with:
-          minikube version: 'v1.15.1'
-          kubernetes version: 'v1.17.11'
       - name: Run Kubernetes tools
         uses: stefanprodan/kube-tools@v1
         with:
@@ -61,6 +56,11 @@ jobs:
           tags: handler:latest
           push: false
       - run: docker image ls
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.0.1
+        with:
+          minikube version: 'v1.15.1'
+          kubernetes version: 'v1.17.11'
       - run: tests/install/checkinstalleverything.sh 
 
   build-and-push:

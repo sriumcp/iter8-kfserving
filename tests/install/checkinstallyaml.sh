@@ -2,6 +2,8 @@
 
 # Check if installation file is correct
 
+mkdir -p tests/scratch
+
 kustomize build install/ > tests/scratch/build.yaml
 
 if cmp tests/scratch/build.yaml install/iter8-kfserving.yaml; then
