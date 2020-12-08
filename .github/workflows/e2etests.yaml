@@ -35,7 +35,6 @@ jobs:
       - run: tests/integration/cleanupfinish.sh
       - run: tests/install/checkinstallyaml.sh
 
-  # Runs in parallel
   build-and-test-install:
       - uses: actions/checkout@v2
       - name: Setup Minikube
