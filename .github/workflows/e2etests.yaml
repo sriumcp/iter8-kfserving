@@ -33,7 +33,8 @@ jobs:
       - run: tests/integration/cleanupstart.sh
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
-      - run: tests/install/checkinstall.sh        
+      - run: tests/install/checkinstallyaml.sh        
+      - run: tests/install/checkquickstart.sh 
 
   build-and-push:
     # Ensure test job passes before pushing image.
