@@ -33,8 +33,7 @@ jobs:
       - run: tests/integration/cleanupstart.sh
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
-      - run: tests/install/checkinstallyaml.sh        
-      - run: tests/install/checkquickstart.sh 
+      - run: tests/install/checkinstallyaml.sh
 
   build-and-test-install:
       - uses: actions/checkout@v2
@@ -48,7 +47,7 @@ jobs:
         with:
           kubectl: 1.18.2
           kustomize: 3.5.5      
-      - run: tests/install/checkquickstart.sh 
+      - run: tests/install/checkinstalleverything.sh 
 
   build-and-push:
     # Ensure test job passes before pushing image.
