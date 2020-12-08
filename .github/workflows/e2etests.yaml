@@ -62,7 +62,7 @@ jobs:
           path: /tmp
       - name: Load Docker image
         run: |
-          docker load --input /tmp/myimage.tar
+          docker load --input /tmp/image.tar
           docker image ls -a
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.0.1
