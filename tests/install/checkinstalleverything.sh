@@ -24,3 +24,4 @@ DOCKER_BUILDKIT=1 docker build . --tag ${IMAGE_NAME}
 
 export ITER8_KFSERVING_ROOT=$PWD
 ./quickstart/install-everything.sh
+
