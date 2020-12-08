@@ -39,6 +39,9 @@ jobs:
       - run: tests/install/checkinstallyaml.sh
 
   build-and-test-install:
+    runs-on: ubuntu-latest
+
+    steps:
       - uses: actions/checkout@v2
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.0.1
