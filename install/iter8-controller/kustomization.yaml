@@ -4,3 +4,10 @@ resources:
 - github.com/iter8-tools/etc3/config/crd/?ref=main
 - github.com/iter8-tools/etc3/config/rbac-iter8/?ref=main
 - github.com/iter8-tools/etc3/config/manager/?ref=main
+# To use a tagged release, for example v0.1.0-rc, change main to v0.1.0-rc above
+
+images:
+- name: iter8/etc3:latest
+  newTag: latest
+  # To use a tagged release, for example v0.1.0-rc, change latest to 0.1.0-rc above
+  # Note the lack of 'v' in the image tag
