@@ -16,5 +16,5 @@ spec:
     - metric: error-rate
       upperLimit: "0.01"
   duration:
-    intervalSeconds: 20
-    maxIterations: 8
+    intervalSeconds: 15
+    maxIterations: 12
