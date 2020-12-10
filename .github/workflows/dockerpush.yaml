@@ -2,11 +2,11 @@ name: Push to Docker
 
 on:
   workflow_dispatch: # manual run
-  inputs:
-    dockertag:
-      description: 'Docker image tag'
-      required: true
-      default: '0.0.0-alpha'
+    inputs:
+      dockertag:
+        description: 'Docker image tag'
+        required: true
+        default: '0.0.0-alpha'
 
 jobs:
   # Build and push Docker image.
