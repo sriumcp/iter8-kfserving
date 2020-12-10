@@ -62,7 +62,6 @@ jobs:
           kubectl: 1.18.2
           kustomize: 3.5.5     
       - run: tests/integration/teststarthandler.sh
-      - run: tests/integration/teststarthandler.sh
       - run: tests/integration/cleanupstart.sh
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
