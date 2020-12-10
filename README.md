@@ -24,24 +24,32 @@ The picture below illustrates an automated canary rollout orchestrated by iter8-
 ## Quick start on Minikube
 Steps 1 through 10 below enable you to perform automated canary rollout of a KFServing model using latency and error-rate metrics collected in a Prometheus backend. Metrics definition and collection is enabled by the KNative monitoring and iter8-kfserving components installed in Step 3 below.
 
-**Step 1:** Start Minikube with sufficient resources.
+**Step 0:** Start Minikube with sufficient resources.
 ```
 minikube start --cpus 4 --memory 8192 --kubernetes-version=v1.17.11 --driver=docker
 ```
 
-**Step 2:** Git clone iter8-kfserving.
+**Step 1:** Install KFServing.
 ```
-git clone https://github.com/iter8-tools/iter8-kfserving.git
-```
-
-**Step 3:** Install KFServing, KNative monitoring, and iter8-kfserving. This step takes a couple of minutes.
-```
-cd iter8-kfserving
-export ITER8_KFSERVING_ROOT=$PWD
-./quickstart/install-everything.sh
+git clone https://github.com/kubeflow/kfserving.git
+cd kfserving
+./hack/quick_install.sh
 ```
 
-**Step 4:** Verify that pods are running.
+**Step 2:** Install KNative-Monitoring (this step will be replaced by a Prometheus add-on installation step in the near future).
+```
+kubectl create ns knative-monitoring
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.18.0/monitoring-metrics-prometheus.yaml
+```
+
+**Step 3:** Install iter8-kfserving using Kustomize (you can install Kustomize from [here](https://kubectl.docs.kubernetes.io/installation/kustomize/)).
+```
+ kustomize build github.com/iter8-tools/iter8-kfserving/install?ref=main | kubectl apply -f -
+ kubectl wait --for condition=established --timeout=120s crd/metrics.iter8.tools
+ kustomize build github.com/iter8-tools/iter8-kfserving/install/metrics?ref=main | kubectl apply -f -
+```
+
+**Step 4:** Verify that all pods are running.
 ```
 kubectl wait --for condition=ready --timeout=180s pods --all -n kfserving-system
 kubectl wait --for condition=ready --timeout=180s pods --all -n knative-monitoring
@@ -57,7 +65,7 @@ Enter password if prompted in the above step.
 **Step 6:** Create InferenceService in the `kfserving-test` namespace.
 ```
 kubectl create ns kfserving-test
-kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+kubectl apply -f https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/samples/common/sklearn-iris.yaml -n kfserving-test
 ```
 This creates the `default` and `canary` versions of sklearn-iris model (`flowers` and `flowers-2` respectively).
 
@@ -74,21 +82,9 @@ export SERVICE_HOSTNAME=$(kubectl get inferenceservice sklearn-iris -n kfserving
 watch -n 1.0 'curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/sklearn-iris:predict -d @./samples/common/input.json'
 ```
 
-<!-- ### Observe metrics
-
-9.*In a separate terminal,* port forward Prometheus so that you can observe metrics for default and canary model versions.
-
-```
-kubectl port-forward -n knative-monitoring \
-$(kubectl get pods -n knative-monitoring \
---selector=app=prometheus --output=jsonpath="{.items[0].metadata.name}") \
-9090
-```
-You can now access the Prometheus UI at `http://localhost:9090`. -->
-
 **Step 9:** Create the canary rollout experiment.
 ```
-kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+kubectl apply -f https://github.com/iter8-tools/iter8-kfserving/blob/main/samples/experiments/example1.yaml -n kfserving-test
 ```
 
 **Step 10:** Watch as the canary version succeeds and gets promoted as the new default.

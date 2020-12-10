@@ -1,6 +1,6 @@
 ## Under the Hood
 
-An overview of the components involved in an iter8-kfserving experiment, and how they interact with each other is illustrated in the following sequence diagram.
+The following sequence diagram provides an overview of the various components involved in an iter8-kfserving experiment, and their interactions.
 
 ![iter8-kfserving sequence diagram](images/iter8kfservingsequencediagram.png)
 

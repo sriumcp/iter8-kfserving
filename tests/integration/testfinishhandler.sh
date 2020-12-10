@@ -23,10 +23,10 @@ sleep 2
 curl --header "Content-Type: application/json-patch+json" --request PATCH http://127.0.0.1:8080/apis/iter8.tools/v2alpha1/namespaces/kfserving-test/experiments/sklearn-iris-experiment-1/status --data '[ { "op": "add", "path": "/status", "value": {"recommendedBaseline": "canary"} }]'
 kill -9 $PID
 
-echo "Setting image name. This image is built as part of teststarthandler.sh"
+echo "Setting image name"
 # Setting image name
 if [[ -z ${IMAGE_NAME} ]]; then 
-    IMAGE_NAME="handlers"
+    IMAGE_NAME="iter8-kfserving:latest"
 fi
 
 echo "Setting up SCRATCH_DIR"

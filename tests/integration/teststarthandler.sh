@@ -11,33 +11,19 @@
 # Exit on error
 set -e
 
-# Check namespace exists before creating
-## Inspiration: https://www.krenger.ch/blog/kubernetes-bash-function-to-change-namespace/
-function create_namespace() {
-  ns=$1
-  set +e
-  # verify namespace ${ns} does not exist -- ignore errors
-  getns=$(kubectl get namespace ${ns} 2>/dev/null)
-  set -e
-  if [[ -z ${getns} ]]; then
-    echo "Namespace ${ns} does not exist ... creating"
-    kubectl create ns ${ns}
-  else
-    echo "Namespace ${ns} already exists ... skipping creation"
-  fi
-}
+# tests is relative to iter8-kfserving root dir
+export PATH=tests/install:tests/integration:$PATH
+source createnamespace.sh
 
 # Ensure minikube can access local docker image
 echo "Ensuring minikube can access local docker image"
 eval $(minikube docker-env)
 
-echo "Building image"
+echo "Setting image name"
 # Setting image name
 if [[ -z ${IMAGE_NAME} ]]; then 
-    IMAGE_NAME="handlers"
+    IMAGE_NAME="iter8-kfserving:latest"
 fi
-docker image rm -f ${IMAGE_NAME}
-DOCKER_BUILDKIT=1 docker build . --tag ${IMAGE_NAME} 
 
 echo "Applying CRDs"
 kubectl apply -k https://github.com/iter8-tools/etc3/config/crd/?ref=main
