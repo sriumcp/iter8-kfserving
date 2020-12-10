@@ -35,13 +35,15 @@ jobs:
   # Do not run on push to `main` or tagged release.
   test-start-and-finish-handlers:
     runs-on: ubuntu-latest
-    if: github.event_name != 'push'
     needs:
     - local-docker-build
+    - test-install-yaml
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      - uses: stefanprodan/kube-tools@v1
+        with:
+          kubectl: 1.18.2
+          kustomize: 3.5.5     
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -56,14 +58,13 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-      - name: Run Kubernetes tools
-        uses: stefanprodan/kube-tools@v1
-        with:
-          kubectl: 1.18.2
-          kustomize: 3.5.5     
-      - run: tests/integration/teststarthandler.sh
+      - name: Test start handler
+        run: |
+          IMAGE_NAME=iter8-kfserving:latest; \
+          tests/integration/teststarthandler.sh
       - run: tests/integration/cleanupstart.sh
-      - run: tests/integration/testfinishhandler.sh
+      - name: Test finish handler
+        run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
 
   # Test handlers.
@@ -85,6 +86,15 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+          docker image ls -a
       - run: kustomize build install | kubectl apply -f -
 
   # Build and push Docker image.
