@@ -65,7 +65,7 @@ Enter password if prompted in the above step.
 **Step 6:** Create InferenceService in the `kfserving-test` namespace.
 ```
 kubectl create ns kfserving-test
-kubectl apply -f samples/common/sklearn-iris.yaml -n kfserving-test
+kubectl apply -f https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/samples/common/sklearn-iris.yaml -n kfserving-test
 ```
 This creates the `default` and `canary` versions of sklearn-iris model (`flowers` and `flowers-2` respectively).
 
@@ -84,7 +84,7 @@ watch -n 1.0 'curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${IN
 
 **Step 9:** Create the canary rollout experiment.
 ```
-kubectl apply -f samples/experiments/example1.yaml -n kfserving-test
+kubectl apply -f https://github.com/iter8-tools/iter8-kfserving/blob/main/samples/experiments/example1.yaml -n kfserving-test
 ```
 
 **Step 10:** Watch as the canary version succeeds and gets promoted as the new default.
