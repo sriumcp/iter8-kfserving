@@ -1,24 +1,20 @@
-name: Build-test-and-docker-push
+name: Build, test, and push iter8-kfserving.
 
 on:
-  # manual runs
-  workflow_dispatch:
-
+  workflow_dispatch: # manual runs
   push:
-    # Publish `main` as Docker `latest` image.
     branches:
-      - main
-
-    # Publish `v1.2.3` tags as releases.
+      - main # Publish `main` as Docker `latest` image.
     tags:
-      - v*
-
-  # Run tests for any PRs.
-  pull_request:
+      - v* # Publish `v1.2.3` tags as releases.
+  pull_request: # Run tests for any PRs.
 
 jobs:
+  # Build a local Docker image.
+  # Do not run on push to `main` or tagged release.
   local-docker-build:
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     steps:
     - uses: actions/checkout@v2    
     - uses: docker/setup-buildx-action@v1
@@ -35,22 +31,13 @@ jobs:
         name: image
         path: /tmp/image.tar
 
-  test-install-yaml:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run Kubernetes tools
-      uses: stefanprodan/kube-tools@v1
-      with:
-        kubectl: 1.18.2
-        kustomize: 3.5.5    
-    - run: tests/install/testinstallyaml.sh
-
+  # Test handlers.
+  # Do not run on push to `main` or tagged release.
   test-start-and-finish-handlers:
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     needs:
     - local-docker-build
-    - test-install-yaml
     steps:
       - uses: actions/checkout@v2
       - name: Set up Docker Buildx
@@ -80,12 +67,13 @@ jobs:
       - run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
 
+  # Test handlers.
+  # Do not run on push to `main` or tagged release.
   test-install:
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     needs:
     - local-docker-build
-    - test-install-yaml
-
     steps:
       - uses: actions/checkout@v2
       - name: Run Kubernetes tools
@@ -98,18 +86,12 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-      - run: tests/install/checkinstalleverything.sh 
+      - run: kustomize build install | kubectl apply -f -
 
+  # Build and push Docker image.
   build-and-push:
-    # Ensure test job passes before pushing image.
-    needs: 
-    - test-start-and-finish-handlers
-    - test-install
-
     runs-on: ubuntu-latest
-
     if: github.event_name == 'push'
-
     steps:
     - uses: actions/checkout@v2
     - uses: docker/setup-buildx-action@v1
