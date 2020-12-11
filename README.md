@@ -31,7 +31,7 @@ minikube start --cpus 4 --memory 8192 --kubernetes-version=v1.17.11 --driver=doc
 
 **Step 1:** Install KFServing.
 ```
-git clone https://github.com/kubeflow/kfserving.git
+git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
 cd kfserving
 ./hack/quick_install.sh
 ```

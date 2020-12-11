@@ -142,7 +142,7 @@ jobs:
           kubernetes version: 'v1.17.11'
       - name: Install KNative
         run: |
-          git clone https://github.com/kubeflow/kfserving.git
+          git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
           cd kfserving
           source ./hack/quick_install.sh
       - name: Install KNative-Monitoring
