@@ -44,7 +44,8 @@ then
 fi
 
 echo "Setting up SCRATCH_DIR"
-SCRATCH_DIR=$(mktemp -d)
+SCRATCH_DIR="./resources"
+mkdir -p ${SCRATCH_DIR}
 
 echo "Fixing and launching start handler"    
 cp install/iter8-controller/configmaps/handlers/start.yaml ${SCRATCH_DIR}/
