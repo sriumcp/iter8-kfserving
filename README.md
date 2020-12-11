@@ -33,7 +33,7 @@ minikube start --cpus 4 --memory 8192 --kubernetes-version=v1.17.11 --driver=doc
 ```
 git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
 cd kfserving
-./hack/quick_install.sh
+eval ./hack/quick_install.sh
 ```
 
 **Step 2:** Install KNative-Monitoring (this step will be replaced by a Prometheus add-on installation step in the near future).

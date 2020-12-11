@@ -140,11 +140,12 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-      - name: Install KNative
+          start args: --cpus 2 --memory 5500
+      - name: Install KFServing
         run: |
           git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
           cd kfserving
-          source ./hack/quick_install.sh
+          eval ./hack/quick_install.sh
       - name: Install KNative-Monitoring
         run: |
           kubectl create ns knative-monitoring
