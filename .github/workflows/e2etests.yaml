@@ -77,7 +77,7 @@ jobs:
       - name: Test finish handler
         run: |
           export IMAGE_NAME=${{ env.REPO }}:latest; \
-          tests/integration/testfinish.sh
+          tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
 
   # Note: The following jobs do not use the previously built local build.
