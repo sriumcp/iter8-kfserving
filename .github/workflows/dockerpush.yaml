@@ -40,7 +40,7 @@ jobs:
         context: .
         tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
         push: true
-    - run: snap install yq
+    - run: sudo snap install yq
     - name: Create local changes
       run: |
         yq w -i install/iter8-controller/configmaps/handlers/start.yaml spec.template.spec.containers[0].image ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
