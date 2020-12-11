@@ -45,9 +45,12 @@ fi
 
 echo "Setting up SCRATCH_DIR"
 SCRATCH_DIR=$(mktemp -d)
+echo ${SCRATCH_DIR}
+ls ${SCRATCH_DIR}
 
 echo "Fixing and launching start handler"    
 cp install/iter8-controller/configmaps/handlers/start.yaml ${SCRATCH_DIR}/start.yaml
+ls ${SCRATCH_DIR}
 yq w -i ${SCRATCH_DIR}/start.yaml spec.template.spec.containers[0].image ${IMAGE_NAME}
 yq w -i ${SCRATCH_DIR}/start.yaml spec.template.spec.containers[0].imagePullPolicy Never
 yq w -i ${SCRATCH_DIR}/start.yaml spec.template.spec.containers[0].env[0].value kfserving-test
