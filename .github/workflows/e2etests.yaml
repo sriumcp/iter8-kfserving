@@ -5,13 +5,13 @@ on:
     branches:
     - main # Publish `main` as Docker `latest` image.
   pull_request: # Run tests for any PRs.
-  workflow_run:
-    workflows:
-    - "Push to Docker"
-    branches:
-    - main
-    types: 
-      - completed
+  # workflow_run:
+  #   workflows:
+  #   - "Push to Docker"
+  #   branches:
+  #   - main
+  #   types: 
+  #     - completed
 
 jobs:
   check-actor_push:
