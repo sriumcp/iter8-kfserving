@@ -1,20 +1,45 @@
-name: Build, test, and push iter8-kfserving.
+name: Build and/or test iter8-kfserving.
 
 on:
-  workflow_dispatch: # manual runs
   push:
     branches:
-      - main # Publish `main` as Docker `latest` image.
-    tags:
-      - v* # Publish `v1.2.3` tags as releases.
+    - main # Publish `main` as Docker `latest` image.
   pull_request: # Run tests for any PRs.
 
 jobs:
+  check-actor:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Dump job context
+      env:
+        JOB_CONTEXT: ${{ toJson(job) }}
+      run: echo "$JOB_CONTEXT"
+    - name: Dump steps context
+      env:
+        STEPS_CONTEXT: ${{ toJson(steps) }}
+      run: echo "$STEPS_CONTEXT"
+    - name: Dump runner context
+      env:
+        RUNNER_CONTEXT: ${{ toJson(runner) }}
+      run: echo "$RUNNER_CONTEXT"
+    - name: Dump strategy context
+      env:
+        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+      run: echo "$STRATEGY_CONTEXT"
+    - name: Dump matrix context
+      env:
+        MATRIX_CONTEXT: ${{ toJson(matrix) }}
+      run: echo "$MATRIX_CONTEXT"    
+    
   # Build a local Docker image.
   # Do not run on push to `main` or tagged release.
   local-docker-build:
     runs-on: ubuntu-latest
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request'
     steps:
     - uses: actions/checkout@v2    
     - uses: docker/setup-buildx-action@v1
@@ -96,38 +121,38 @@ jobs:
           docker image ls -a
       - run: kustomize build install | kubectl apply -f -
 
-  # Build and push Docker image.
-  build-and-push:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-    - uses: actions/checkout@v2
-    - uses: docker/setup-buildx-action@v1
-    - uses: docker/login-action@v1
-      with:
-        # registry: ${{ env.REGISTRY }}
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_SECRET }}
-    - name: Get version
-      run: |
-        tarref=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-        # Strip "v" prefix from tagref
-        if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-          echo "VERSION=$(echo $tarref | sed -e 's/^v//')" >> $GITHUB_ENV
-        elif [[ "${{ github.ref }}" == *"main" ]]; then
-          echo "VERSION=latest" >> $GITHUB_ENV
-        fi
-    - name: Get owner and repo
-      run: |
-        ownerrepo=${{ github.repository }}
-        owner=$(echo $ownerrepo | cut -f1 -d/)
-        if [[ "$owner" == "iter8-tools" ]]; then
-          owner=iter8
-        fi
-        echo "OWNER=$owner" >> $GITHUB_ENV
-        echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
-    - uses: docker/build-push-action@v2
-      with:
-        context: .
-        tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
-        push: true
+  # # Build and push Docker image.
+  # build-and-push:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: docker/setup-buildx-action@v1
+  #   - uses: docker/login-action@v1
+  #     with:
+  #       # registry: ${{ env.REGISTRY }}
+  #       username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #       password: ${{ secrets.DOCKERHUB_SECRET }}
+  #   - name: Get version
+  #     run: |
+  #       tarref=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+  #       # Strip "v" prefix from tagref
+  #       if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+  #         echo "VERSION=$(echo $tarref | sed -e 's/^v//')" >> $GITHUB_ENV
+  #       elif [[ "${{ github.ref }}" == *"main" ]]; then
+  #         echo "VERSION=latest" >> $GITHUB_ENV
+  #       fi
+  #   - name: Get owner and repo
+  #     run: |
+  #       ownerrepo=${{ github.repository }}
+  #       owner=$(echo $ownerrepo | cut -f1 -d/)
+  #       if [[ "$owner" == "iter8-tools" ]]; then
+  #         owner=iter8
+  #       fi
+  #       echo "OWNER=$owner" >> $GITHUB_ENV
+  #       echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
+  #   - uses: docker/build-push-action@v2
+  #     with:
+  #       context: .
+  #       tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
+  #       push: true
