@@ -5,11 +5,18 @@ on:
     branches:
     - main # Publish `main` as Docker `latest` image.
   pull_request: # Run tests for any PRs.
+  workflow_run:
+    workflows:
+    - "Push to Docker"
+    branches:
+    - main
+    types: 
+      - completed
 
 jobs:
   check-actor:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_run'
     steps:
     - name: Dump GitHub context
       env:
