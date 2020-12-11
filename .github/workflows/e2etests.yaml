@@ -140,7 +140,22 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-      - run: |
+      - name: Install KNative
+        run: |
           git clone https://github.com/kubeflow/kfserving.git
           cd kfserving
           source ./hack/quick_install.sh
+      - name: Install KNative-Monitoring
+        run: |
+          kubectl create ns knative-monitoring
+          kubectl apply -f https://github.com/knative/serving/releases/download/v0.18.0/monitoring-metrics-prometheus.yaml
+      - name: Install iter8-kfserving
+        run: |
+          kustomize build github.com/iter8-tools/iter8-kfserving/install?ref=main | kubectl apply -f -
+          kubectl wait --for condition=established --timeout=120s crd/metrics.iter8.tools
+          kustomize build github.com/iter8-tools/iter8-kfserving/install/metrics?ref=main | kubectl apply -f -
+      - name: Verify all pods are running
+        run: |
+          kubectl wait --for condition=ready --timeout=180s pods --all -n kfserving-system
+          kubectl wait --for condition=ready --timeout=180s pods --all -n knative-monitoring
+          kubectl wait --for condition=ready --timeout=180s pods --all -n iter8-system        
