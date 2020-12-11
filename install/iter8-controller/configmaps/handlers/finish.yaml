@@ -7,14 +7,14 @@ spec:
     spec:
       serviceAccountName: iter8-handlers
       containers:
-      - name: ik-finish
-        image: iter8/iter8-kfserving:latest
-        command: ["handlers/finish.sh"]
-        env:
-        - name: EXPERIMENT_NAMESPACE
-          value: EXPERIMENT_NAMESPACE_VALUE
-        - name: EXPERIMENT_NAME
-          value: EXPERIMENT_NAME_VALUE
+        - name: ik-finish
+          image: sriumcp/iter8-kfserving:0.0.0-alpha
+          command: ["handlers/finish.sh"]
+          env:
+            - name: EXPERIMENT_NAMESPACE
+              value: EXPERIMENT_NAMESPACE_VALUE
+            - name: EXPERIMENT_NAME
+              value: EXPERIMENT_NAME_VALUE
       restartPolicy: Never
   backoffLimit: 4
   activeDeadlineSeconds: 300
