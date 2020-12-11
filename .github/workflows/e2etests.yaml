@@ -78,6 +78,7 @@ jobs:
         run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
 
+  # Note: The following jobs do not use the previously built local build.
   # Build and push :latest image.
   build-and-push:
     runs-on: ubuntu-latest
@@ -104,7 +105,7 @@ jobs:
         tags: ${{ env.OWNER }}/${{ env.REPO }}:latest
         push: true
 
-  # Note: The following tests do not use the local build.
+  # Note: The following jobs do not use the local build.
   # Test installation. 
   test-install:
     runs-on: ubuntu-latest
