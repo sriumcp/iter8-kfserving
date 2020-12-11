@@ -30,7 +30,8 @@ if [[ -z ${IMAGE_NAME} ]]; then
 fi
 
 echo "Setting up SCRATCH_DIR"
-SCRATCH_DIR=$(mktemp -d)
+SCRATCH_DIR="./resources"
+mkdir -p ${SCRATCH_DIR}
 
 echo "Fixing finish handler"    
 cp install/iter8-controller/configmaps/handlers/finish.yaml ${SCRATCH_DIR}/finish.yaml
