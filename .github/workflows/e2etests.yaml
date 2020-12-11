@@ -156,6 +156,6 @@ jobs:
           kustomize build github.com/iter8-tools/iter8-kfserving/install/metrics?ref=main | kubectl apply -f -
       - name: Verify all pods are running
         run: |
-          kubectl wait --for condition=ready --timeout=180s pods --all -n kfserving-system
-          kubectl wait --for condition=ready --timeout=180s pods --all -n knative-monitoring
-          kubectl wait --for condition=ready --timeout=180s pods --all -n iter8-system        
+          kubectl wait --for condition=ready --timeout=300s pods --all -n kfserving-system
+          kubectl wait --for condition=ready --timeout=300s pods --all -n knative-monitoring
+          kubectl wait --for condition=ready --timeout=300s pods --all -n iter8-system        

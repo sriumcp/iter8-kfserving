@@ -51,9 +51,9 @@ kubectl apply -f https://github.com/knative/serving/releases/download/v0.18.0/mo
 
 **Step 4:** Verify that all pods are running.
 ```
-kubectl wait --for condition=ready --timeout=180s pods --all -n kfserving-system
-kubectl wait --for condition=ready --timeout=180s pods --all -n knative-monitoring
-kubectl wait --for condition=ready --timeout=180s pods --all -n iter8-system
+kubectl wait --for condition=ready --timeout=300s pods --all -n kfserving-system
+kubectl wait --for condition=ready --timeout=300s pods --all -n knative-monitoring
+kubectl wait --for condition=ready --timeout=300s pods --all -n iter8-system
 ```
 
 **Step 5:** *In a separate terminal,*, setup Minikube tunnel.
