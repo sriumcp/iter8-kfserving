@@ -1,53 +1,15 @@
-name: Build and/or test iter8-kfserving.
+name: Build and test. Push to DockerHub with :latest tag if needed.
 
 on:
   push:
     branches:
     - main # Publish `main` as Docker `latest` image.
   pull_request: # Run tests for any PRs.
-  workflow_run:
-    workflows:
-    - "Push to Docker"
-    branches:
-    - main
-    types: 
-      - completed
 
 jobs:
-  check-actor_wfr:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'failure'
-    steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - name: Dump job context
-      env:
-        JOB_CONTEXT: ${{ toJson(job) }}
-      run: echo "$JOB_CONTEXT"
-    - name: Dump steps context
-      env:
-        STEPS_CONTEXT: ${{ toJson(steps) }}
-      run: echo "$STEPS_CONTEXT"
-    - name: Dump runner context
-      env:
-        RUNNER_CONTEXT: ${{ toJson(runner) }}
-      run: echo "$RUNNER_CONTEXT"
-    - name: Dump strategy context
-      env:
-        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-      run: echo "$STRATEGY_CONTEXT"
-    - name: Dump matrix context
-      env:
-        MATRIX_CONTEXT: ${{ toJson(matrix) }}
-      run: echo "$MATRIX_CONTEXT"    
-    
   # Build a local Docker image.
-  # Do not run on push to `main` or tagged release.
   local-docker-build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
     - uses: actions/checkout@v2    
     - uses: docker/setup-buildx-action@v1
@@ -56,7 +18,7 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        tags: iter8-kfserving:latest
+        tags: ${{ env.REPO }}:latest
         outputs: type=docker,dest=/tmp/image.tar
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -65,7 +27,6 @@ jobs:
         path: /tmp/image.tar
 
   # Test handlers.
-  # Do not run on push to `main` or tagged release.
   test-start-and-finish-handlers:
     runs-on: ubuntu-latest
     needs:
@@ -92,20 +53,43 @@ jobs:
           kubernetes version: 'v1.17.11'
       - name: Test start handler
         run: |
-          IMAGE_NAME=iter8-kfserving:latest; \
+          IMAGE_NAME=${{ env.REPO }}:latest; \
           tests/integration/teststarthandler.sh
       - run: tests/integration/cleanupstart.sh
       - name: Test finish handler
         run: tests/integration/testfinishhandler.sh
       - run: tests/integration/cleanupfinish.sh
 
-  # Test handlers.
-  # Do not run on push to `main` or tagged release.
+  # Build and push :latest image.
+  build-and-push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v2
+    - uses: docker/setup-buildx-action@v1
+    - uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_SECRET }}
+    - name: Get owner and repo
+      run: |
+        ownerrepo=${{ github.repository }}
+        owner=$(echo $ownerrepo | cut -f1 -d/)
+        if [[ "$owner" == "iter8-tools" ]]; then
+          owner=iter8
+        fi
+        echo "OWNER=$owner" >> $GITHUB_ENV
+        echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
+    - uses: docker/build-push-action@v2
+      with:
+        context: .
+        tags: ${{ env.OWNER }}/${{ env.REPO }}:latest
+        push: true
+
+  # Note: The following tests do not use the local build.
+  # Test installation. 
   test-install:
     runs-on: ubuntu-latest
-    if: github.event_name != 'push'
-    needs:
-    - local-docker-build
     steps:
       - uses: actions/checkout@v2
       - name: Run Kubernetes tools
@@ -118,49 +102,4 @@ jobs:
         with:
           minikube version: 'v1.15.1'
           kubernetes version: 'v1.17.11'
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: image
-          path: /tmp
-      - name: Load Docker image
-        run: |
-          docker load --input /tmp/image.tar
-          docker image ls -a
       - run: kustomize build install | kubectl apply -f -
-
-  # # Build and push Docker image.
-  # build-and-push:
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'push'
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - uses: docker/setup-buildx-action@v1
-  #   - uses: docker/login-action@v1
-  #     with:
-  #       # registry: ${{ env.REGISTRY }}
-  #       username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #       password: ${{ secrets.DOCKERHUB_SECRET }}
-  #   - name: Get version
-  #     run: |
-  #       tarref=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-  #       # Strip "v" prefix from tagref
-  #       if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-  #         echo "VERSION=$(echo $tarref | sed -e 's/^v//')" >> $GITHUB_ENV
-  #       elif [[ "${{ github.ref }}" == *"main" ]]; then
-  #         echo "VERSION=latest" >> $GITHUB_ENV
-  #       fi
-  #   - name: Get owner and repo
-  #     run: |
-  #       ownerrepo=${{ github.repository }}
-  #       owner=$(echo $ownerrepo | cut -f1 -d/)
-  #       if [[ "$owner" == "iter8-tools" ]]; then
-  #         owner=iter8
-  #       fi
-  #       echo "OWNER=$owner" >> $GITHUB_ENV
-  #       echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
-  #   - uses: docker/build-push-action@v2
-  #     with:
-  #       context: .
-  #       tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
-  #       push: true

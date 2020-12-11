@@ -15,14 +15,10 @@ set -e
 export PATH=tests/install:tests/integration:$PATH
 source createnamespace.sh
 
-# Ensure minikube can access local docker image
-echo "Ensuring minikube can access local docker image"
-eval $(minikube docker-env)
-
-echo "Setting image name"
-# Setting image name
+echo "Checking image name"
 if [[ -z ${IMAGE_NAME} ]]; then 
-    IMAGE_NAME="iter8-kfserving:latest"
+    echo "IMAGE_NAME is not set"
+    exit 1
 fi
 
 echo "Applying CRDs"
@@ -48,11 +44,7 @@ then
 fi
 
 echo "Setting up SCRATCH_DIR"
-if [[ -z ${SCRATCH_DIR} ]]; then 
-    SCRATCH_DIR="tests/scratch"
-fi
-mkdir -p ${SCRATCH_DIR}
-echo "SCRATCH_DIR ${SCRATCH_DIR} created"
+SCRATCH_DIR=$(mktemp -d)
 
 echo "Fixing and launching start handler"    
 cp install/iter8-controller/configmaps/handlers/start.yaml ${SCRATCH_DIR}/start.yaml

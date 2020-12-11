@@ -1,4 +1,4 @@
-name: Push to Docker
+name: Push Docker image.
 
 on:
   workflow_dispatch: # manual run
@@ -40,18 +40,3 @@ jobs:
         context: .
         tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
         push: true
-    - run: sudo snap install yq
-    - name: Create local changes
-      run: |
-        yq w -i install/iter8-controller/configmaps/handlers/start.yaml spec.template.spec.containers[0].image ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
-        yq w -i install/iter8-controller/configmaps/handlers/finish.yaml spec.template.spec.containers[0].image ${{ env.OWNER }}/${{ env.REPO }}:${{ env.VERSION }}
-    - name: Commit files
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -a -m "Fixed images in handler yamls"
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
