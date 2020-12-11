@@ -79,15 +79,15 @@ kubectl wait --for condition=ready --timeout=180s inferenceservice/sklearn-iris 
 export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 export SERVICE_HOSTNAME=$(kubectl get inferenceservice sklearn-iris -n kfserving-test -o jsonpath='{.status.url}' | cut -d "/" -f 3)
-watch -n 1.0 'curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/sklearn-iris:predict -d @./samples/common/input.json'
+let i=0; while clear; echo "Request $i"; do curl https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/samples/common/input.json | curl -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/sklearn-iris:predict -d @-; let i=i+1; sleep 0.5; done
 ```
 
 **Step 9:** Create the canary rollout experiment.
 ```
-kubectl apply -f https://github.com/iter8-tools/iter8-kfserving/blob/main/samples/experiments/example1.yaml -n kfserving-test
+kubectl apply -f https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/samples/experiments/example1.yaml -n kfserving-test
 ```
 
-**Step 10:** Watch as the canary version succeeds and gets promoted as the new default.
+**Step 10:** Watch changes to the InferenceService as the canary version succeeds and is progressively rolled out as the new default.
 ```
 kubectl get inferenceservice -n kfserving-test --watch
 ```
@@ -115,4 +115,27 @@ sklearn-iris                                                    False           
 sklearn-iris   http://sklearn-iris.kfserving-test.example.com   True    100                                4m36s
 ```
 
-If you inspect the InferenceService object (`kubectl get inferenceservice -n kfserving-test -o yaml`), you will notice that `flowers-2` (canary version) has been **promoted** as the new default, all traffic flows to `flowers-2`, and there is no longer a canary version.
+**Step 11:** *In a separate terminal,* watch the experiment progress.
+```
+kubectl get experiment -n kfserving-test --watch
+```
+
+You should see output similar to the following.
+
+```
+kubectl get experiment -n kfserving-test --watch
+NAME                        TYPE     TARGET                        COMPLETED ITERATIONS   MESSAGE
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   0                      ExperimentInitialized: Late initialization complete
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   1                      IterationUpdate: Completed Iteration 1
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   2                      IterationUpdate: Completed Iteration 2
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   3                      IterationUpdate: Completed Iteration 3
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   4                      IterationUpdate: Completed Iteration 4
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   5                      IterationUpdate: Completed Iteration 5
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   6                      IterationUpdate: Completed Iteration 6
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   7                      IterationUpdate: Completed Iteration 7
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   8                      IterationUpdate: Completed Iteration 8
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   9                      IterationUpdate: Completed Iteration 9
+sklearn-iris-experiment-1   Canary   kfserving-test/sklearn-iris   10                     ExperimentCompleted: Experiment completed successfully
+```
+
+At the end of the experiment, if you inspect the InferenceService object (`kubectl get inferenceservice -n kfserving-test -o yaml`), you will notice that `flowers-2` (canary version) has been **promoted** as the new default, all traffic flows to `flowers-2`, and there is no longer a canary version.

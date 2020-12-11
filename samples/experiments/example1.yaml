@@ -17,4 +17,4 @@ spec:
       upperLimit: "0.01"
   duration:
     intervalSeconds: 15
-    maxIterations: 12
+    maxIterations: 10
