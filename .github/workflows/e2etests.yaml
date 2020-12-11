@@ -72,7 +72,7 @@ jobs:
       - name: Test start handler
         run: |
           export IMAGE_NAME=${{ env.REPO }}:latest; \
-          tests/integration/teststarthandler.sh
+          tests/integration/teststarthandler.sh;
       - run: tests/integration/cleanupstart.sh
       - name: Test finish handler
         run: |
