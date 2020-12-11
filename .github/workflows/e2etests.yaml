@@ -71,7 +71,7 @@ jobs:
           echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
       - name: Test start handler
         run: |
-          IMAGE_NAME=${{ env.REPO }}:latest; \
+          export IMAGE_NAME=${{ env.REPO }}:latest; \
           tests/integration/teststarthandler.sh
       - run: tests/integration/cleanupstart.sh
       - name: Test finish handler
