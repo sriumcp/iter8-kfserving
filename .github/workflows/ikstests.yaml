@@ -17,8 +17,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
-    # Download and Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
       run: |
         curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
@@ -26,19 +24,19 @@ jobs:
         ibmcloud config --check-version=false
         ibmcloud plugin install -f kubernetes-service
         ibmcloud plugin install -f container-registry
-
-    # Authenticate with IBM Cloud CLI
     - name: Authenticate with IBM Cloud CLI
       run: |
         ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
-
-    # Install iter8-kfserving on IKS
-    - name: Install iter8-kfserving on IKS
+    - name: Set kubectl context
       run: |
-        # set kubectl context
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
-        # install kfserving
+    - name: Install KFServing with Istio
+      run:
         git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
         cd kfserving
         eval ./hack/quick_install.sh
+    - name: Install knative-monitoring
+      run: |
+        kubectl create ns knative-monitoring
+        kubectl apply -f https://github.com/knative/serving/releases/download/v0.18.0/monitoring-metrics-prometheus.yaml
