@@ -135,7 +135,7 @@ jobs:
   test-quickstart-on-iks:
     name: Test quickstart on IKS cluster
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # if: github.event_name == 'push'
     steps:
     - name: Checkout
       uses: actions/checkout@v2
