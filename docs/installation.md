@@ -2,8 +2,8 @@
 Follow this guide to install iter8-kfserving on Kubernetes using [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/).
 
 ### Prerequisites
-1. [KFServing](https://github.com/kubeflow/kfserving)
-2. Kubernetes 1.15+
+1. Kubernetes 1.15+
+2. [KFServing](https://github.com/kubeflow/kfserving) installed on your Kubernetes cluster
 
 ### Install KNative-Monitoring
 This step enables metrics collection. However, due to deprecation of KNative-Monitoring, this step will be replaced in the near future.
