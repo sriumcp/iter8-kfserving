@@ -32,7 +32,7 @@ jobs:
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
     - name: Install KFServing with Istio
-      run:
+      run: |
         git clone --branch v0.4.1 https://github.com/kubeflow/kfserving.git
         cd kfserving
         eval ./hack/quick_install.sh
