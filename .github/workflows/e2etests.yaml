@@ -8,6 +8,7 @@ on:
 
 # environment variables available to all jobs in this workflow
 env:
+  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
   IBM_CLOUD_REGION: us-south
   IKS_CLUSTER: iter8
 
@@ -149,7 +150,8 @@ jobs:
 
     # Authenticate with IBM Cloud CLI
     - name: Authenticate with IBM Cloud CLI
-      run: IBMCLOUD_API_KEY=${{ secrets.IBM_CLOUD_API_KEY }} ibmcloud login -r ${IBM_CLOUD_REGION} -g default
+      run: |
+        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
 
     # Install iter8-kfserving on IKS
     - name: Install iter8-kfserving on IKS
