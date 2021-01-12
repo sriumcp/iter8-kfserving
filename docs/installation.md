@@ -17,7 +17,6 @@ kustomize build github.com/iter8-tools/iter8-kfserving/install/iter8-metrics?ref
 ```
 
 ### Install kfserving-monitoring
-Install `kfserving-monitoring` using the following instructions.
 ```shell
 TAG=main
 kustomize build github.com/iter8-tools/iter8-kfserving/install/monitoring/prometheus-operator?ref=$TAG | kubectl apply -f -

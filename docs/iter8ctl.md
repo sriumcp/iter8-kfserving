@@ -6,12 +6,12 @@
 ```
 GOBIN=/usr/local/bin go get github.com/iter8-tools/iter8ctl@v0.1-alpha
 ```
-The above command installs `iter8ctl` under the `/usr/local/bin` directory. To install under a different directory, change the value of `GOBIN` above.
+The above command installs iter8ctl under the `/usr/local/bin` directory. To install under a different directory, change the value of `GOBIN` above.
 
 # Usage
 
 ## Example 1
-Describe an iter8 Experiment resource object present in your Kubernetes cluster.
+Describe an iter8 experiment resource object present in your Kubernetes cluster.
 ```shell
 kubectl get experiment sklearn-iris-experiment-1 -n kfserving-test -o yaml > experiment.yaml
 iter8ctl describe -f experiment.yaml
@@ -25,7 +25,7 @@ cat experiment.yaml | iter8ctl describe -f -
 ```
 
 ## Example 3
-Periodically fetch an iter8 Experiment resource object present in your Kubernetes cluster and describe it. You can change the frequency by adjusting the sleep interval below.
+Periodically fetch an iter8 experiment resource object present in your Kubernetes cluster and describe it. You can change the frequency by adjusting the sleep interval below.
 ```shell
 while clear; do
     kubectl get experiment sklearn-iris-experiment-1 -n kfserving-test -o yaml | iter8ctl describe -f -
@@ -34,7 +34,7 @@ done
 ```
 
 # Sample Output
-The following sample output produced by `iter8ctl` is from the experiment used in [quick start instructions](https://github.com/iter8-tools/iter8-kfserving#quick-start-on-minikube).
+The following sample output produced by iter8ctl is from the experiment used in [quick start instructions](https://github.com/iter8-tools/iter8-kfserving#quick-start-on-minikube).
 
 ```shell
 $ kubectl get experiment experiment-1 -o yaml | iter8ctl describe -f -
