@@ -75,8 +75,8 @@ kubectl apply -f https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/m
 echo "created experiment"
 
 # Giving the experiment four minutes to complete
-echo "sleeping 260 seconds"
-sleep 260
+echo "sleeping 300 seconds"
+sleep 300
 echo "awake"
 
 kubectl get experiment experiment-1 -o json > experiment.json

@@ -30,7 +30,7 @@ Before you begin, you will need [Minikube](https://minikube.sigs.k8s.io/docs/sta
 
 **Step 1:** Start Minikube with sufficient resources.
 ```shell
-minikube start --cpus 4 --memory 12288 --kubernetes-version=v1.17.11 --driver=docker
+minikube start --cpus 6 --memory 12288 --kubernetes-version=v1.17.11 --driver=docker
 ```
 
 **Step 2:** Install KFServing, kfserving-monitoring, and iter8-kfserving.
@@ -80,7 +80,7 @@ spec:
     intervalSeconds: 15
     maxIterations: 12
 </pre>
-This experiment spec asks iter8 to perform a <code>canary release experiment</code> for the inferenceservice named <code>my-model</code> in the <code>default</code> namespace; during the experiment, the default and canary model versions will be assessed every 15 seconds over 12 iterations; when the experiment experiment, the canary version will be considered successful (<code>winner</code>) if its mean-latency is within 1000 msec and its error rate is within 1%. If canary is successful, it will be rolled out: i.e., 100% of the traffic will be shifted to the canary.
+The above spec asks iter8 to perform a <code>canary release experiment</code> for the inferenceservice named <code>my-model</code> in the <code>default</code> namespace; during the experiment, the default and canary model versions will be assessed every 15 seconds over 12 iterations; when the experiment completes, the canary version will be considered successful (<code>winner</code>) if its mean-latency is within 1000 msec and its error rate is within 1%. If canary is successful, it will be rolled out: i.e., 100% of the traffic will be shifted to it.
 </details>
 
 
@@ -88,7 +88,7 @@ This experiment spec asks iter8 to perform a <code>canary release experiment</co
 
 **Install** [iter8ctl](https://github.com/iter8-tools/iter8ctl). You can change the directory where `iter8ctl` binary is installed by changing GOBIN below.
 ```shell
-GOBIN=/usr/local/bin go get github.com/iter8-tools/iter8ctl@v0.1-alpha
+GO111MODULE=on GOBIN=/usr/local/bin go get github.com/iter8-tools/iter8ctl@v0.1.0-alpha
 ```
 
 Periodically describe the experiment.
