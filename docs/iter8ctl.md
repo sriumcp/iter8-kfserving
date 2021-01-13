@@ -36,7 +36,8 @@ done
 # Sample Output
 The following sample output produced by iter8ctl is from the experiment used in [quick start instructions](https://github.com/iter8-tools/iter8-kfserving#quick-start-on-minikube).
 
-```shell
+<details>
+<pre>
 $ kubectl get experiment experiment-1 -o yaml | iter8ctl describe -f -
 ******
 Experiment name: experiment-1
@@ -73,7 +74,9 @@ Metrics
 +--------------------------------+---------+---------+
 | error-rate                     |   0.000 |   0.000 |
 +--------------------------------+---------+---------+
-```
+</pre>
+</details>
+
 
 ## Removing iter8ctl
 ```

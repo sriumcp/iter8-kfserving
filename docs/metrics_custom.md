@@ -52,8 +52,9 @@ Iter8 instantiates the templated HTTP query params (`spec.params`) before queryi
 2. The template variable `$revision` with the revision name corresponding to the model versions.
 3. The template variable `$interval` with the time elapsed since the start of the experiment (e.g., `80s` or `200s`).
 
+<details>
 More concretely, the following Python (pseudo) code snippet provides an approximate behind-the-scenes view of how iter8 instantiates the templated parameters and queries the metrics database.
-```python
+<pre>
 # Python (pseudo) code snippet intended to illustrate 'roughly' how iter8 queries a metrics database.
 metrics_database_url = "https://prometheus-operated.kfserving-monitoring:9090/api/v1/query"
 instantiated_params = substitute_template_variables(spec.params)
@@ -61,7 +62,8 @@ instantiated_params = substitute_template_variables(spec.params)
 # instantiated_params = {'query': 'sum(increase(correct_predictions{revision_name='my-model-predictor-default-dlgm8'}[183s])) or on() vector(0)'}
 # Using requests library API for HTTP GET
 result = requests.get(metrics_database_url, params = instantiated_params).json()
-```
+</pre>
+</details>
 
 ### Example 2: `request-count` metric
 The `request-count` metric is an [out-of-the-box iter8 metric](../install/iter8-monitoring/metrics/revision-metrics.yaml). Although not a custom metric, this example serves to further illustrate the concepts introduced in Example 1. There is no real difference between custom and out-of-the-box metrics other than the fact the latter is shipped as part of iter8-kfserving.
