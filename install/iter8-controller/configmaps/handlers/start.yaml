@@ -8,7 +8,7 @@ spec:
       serviceAccountName: iter8-handlers
       containers:
       - name: ik-start
-        image: iter8/iter8-kfserving-handler:0.1-alpha.1
+        image: iter8/iter8-kfserving-handler:0.1.0-alpha
         command: ["/handler", "start"]
         env:
         - name: EXPERIMENT_NAMESPACE
