@@ -54,7 +54,7 @@ Iter8 instantiates the templated HTTP query params (`spec.params`) before queryi
 
 <details>
 More concretely, the following Python (pseudo) code snippet provides an approximate behind-the-scenes view of how iter8 instantiates the templated parameters and queries the metrics database.
-<pre>
+<code>
 # Python (pseudo) code snippet intended to illustrate 'roughly' how iter8 queries a metrics database.
 metrics_database_url = "https://prometheus-operated.kfserving-monitoring:9090/api/v1/query"
 instantiated_params = substitute_template_variables(spec.params)
@@ -62,7 +62,7 @@ instantiated_params = substitute_template_variables(spec.params)
 # instantiated_params = {'query': 'sum(increase(correct_predictions{revision_name='my-model-predictor-default-dlgm8'}[183s])) or on() vector(0)'}
 # Using requests library API for HTTP GET
 result = requests.get(metrics_database_url, params = instantiated_params).json()
-</pre>
+</code>
 </details>
 
 ### Example 2: `request-count` metric
