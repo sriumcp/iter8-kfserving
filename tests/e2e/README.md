@@ -12,7 +12,7 @@ fortio load -qps 2 -t 5m -H Host:${SERVICE_HOSTNAME} -payload-file samples/quick
 The above command generates load for the InferenceService at a rate of 2 requests per second over a period of five minutes. You can `ctrl-c` out of this command as soon as the experiment completes. When you do so, you should see output similar to the following.
 
 ```shell
-$ fortio load -qps 2 -t 5m -H Host:${SERVICE_HOSTNAME} -payload-file samples/quickstart/input.json http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict
+http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict
 Fortio 1.11.5-pre running at 2 queries per second, 12->12 procs, for 5m0s: http://127.0.0.1:80/v1/models/my-model:predict
 22:11:15 I httprunner.go:81> Starting http test for http://127.0.0.1:80/v1/models/my-model:predict with 4 threads at 2.0 qps
 Starting at 2 qps with 4 thread(s) [gomax 12] for 5m0s : 150 calls each (total 600)
