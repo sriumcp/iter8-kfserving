@@ -9,7 +9,7 @@ GOBIN=/usr/local/bin go get fortio.org/fortio
 fortio load -qps 2 -t 5m -H Host:${SERVICE_HOSTNAME} -payload-file samples/quickstart/input.json http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict
 ```
 
-The above command generates load for the InferenceService at a rate of 2 prediction requests per second over a period of five minutes. You can `ctrl-c` out of this command as soon as the experiment completes. When you do so, you should see output similar to the following.
+The above command generates load for the InferenceService at a rate of 2 requests per second over a period of five minutes. You can `ctrl-c` out of this command as soon as the experiment completes. When you do so, you should see output similar to the following.
 
 ```shell
 $ fortio load -qps 2 -t 5m -H Host:${SERVICE_HOSTNAME} -payload-file samples/quickstart/input.json http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict
