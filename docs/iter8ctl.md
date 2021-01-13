@@ -37,7 +37,7 @@ done
 The following sample output produced by iter8ctl is from the experiment used in [quick start instructions](https://github.com/iter8-tools/iter8-kfserving#quick-start-on-minikube).
 
 <details>
-<samp>
+<code>
 ******
 Experiment name: experiment-1
 Experiment namespace: default
@@ -73,7 +73,7 @@ Metrics
 +--------------------------------+---------+---------+
 | error-rate                     |   0.000 |   0.000 |
 +--------------------------------+---------+---------+
-</samp>
+</code>
 </details>
 
 
