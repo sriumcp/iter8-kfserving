@@ -24,7 +24,7 @@ The picture below illustrates progressive canary release of a KFServing model us
 - [Contributing](./docs/contributing.md)
 
 ## Quick start on Minikube
-Steps 1 to 7 demonstrate metrics-driven progressive canary release of a KFServing model using iter8-kfserving. 
+Steps 1 to 7 demonstrate metrics-driven progressive canary release of a KFServing model using iter8-kfserving. This demo uses KFServing v0.5.0-rc2 with support for v1beta1 InferenceService APIs.
 
 Before you begin, you will need [Minikube](https://minikube.sigs.k8s.io/docs/start/), [Kustomize v3](https://kubectl.docs.kubernetes.io/installation/kustomize/), and [Go 1.13+](https://golang.org/doc/install).
 
