@@ -1,7 +1,7 @@
 # Iter8-kfserving
-> Iter8-kfserving enables metrics-driven live experiments, progressive delivery, and automated rollouts for ML models in production over Kubernetes and OpenShift clusters.
+> Iter8-kfserving enables metrics-driven experiments, progressive delivery, and automated rollouts for ML models served over Kubernetes and OpenShift clusters.
 
-The picture below illustrates progressive canary release of a KFServing model using iter8-kfserving.
+The picture below illustrates metrics-driven progressive canary release of a KFServing model using iter8-kfserving.
 
 ![Progressive canary rollout orchestrated by iter8-kfserving](docs/images/quickstart.png)
 
@@ -24,7 +24,7 @@ The picture below illustrates progressive canary release of a KFServing model us
 - [Contributing](./docs/contributing.md)
 
 ## Quick start on Minikube
-Steps 1 to 7 demonstrate metrics-driven progressive canary release of a KFServing model using iter8-kfserving. This demo uses KFServing v0.5.0-rc2 with support for v1beta1 InferenceService APIs.
+Steps 1 to 7 demonstrate metrics-driven progressive canary release of a KFServing model using iter8-kfserving. This demo uses KFServing v0.5.0-rc2.
 
 Before you begin, you will need [Minikube](https://minikube.sigs.k8s.io/docs/start/), [Kustomize v3](https://kubectl.docs.kubernetes.io/installation/kustomize/), and [Go 1.13+](https://golang.org/doc/install).
 
@@ -43,7 +43,7 @@ curl -L https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/sampl
 minikube tunnel --cleanup
 ```
 
-**Step 4:** Create a KFServing inferenceservice with a `default` model. Update it with a `canary` model. This step may take a couple of minutes.
+**Step 4:** Create a KFServing v1beta1 inferenceservice with a `default` model. Update it with a `canary` model. This step may take a couple of minutes.
 ```shell
 curl -L https://raw.githubusercontent.com/iter8-tools/iter8-kfserving/main/samples/quickstart/inferenceservicesetup.sh | /bin/bash
 ```
