@@ -1,7 +1,7 @@
 namePrefix: iter8-
 # To use a tagged release, for example v1.1.0-rc, change ref=master to ref=v1.1.0-rc
 resources:
-- github.com/iter8-tools/iter8-analytics/install/kubernetes/kustomize/?ref=master
+- github.com/iter8-tools/iter8-analytics/install/kubernetes/kustomize/?ref=v1.1.0-alpha
 
 images:
 - name: iter8/iter8-analytics
